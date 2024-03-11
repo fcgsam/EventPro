@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %} 
+
+
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == "success" %}
+
+            <script>
+              console.log('{{user.profile_image}}')
+                  iziToast.show({
+                                    title: 'Event !',
+                                    message: '{{ message|safe }}',
+                                    theme: 'dark',
+                                    
+                                  })
+                </script>
+
+        {% elif message.tags == "error"%}
+        <script>
+          console.log('{{user.profile_image}}')
+              iziToast.show({
+                                title: 'Error!',
+                                message: '{{ message|safe }}',
+                                color: 'red', 
+                              })
+                                
+                      
+            </script>
+        {% endif %}
+        {% endfor %}
+{% endif %}
+<div class="card pt-5">
+<table class="display table table-hover">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Time</th>
+            <th>Date</th>
+            <th>Edit</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in events %}
+        {% if event.id in attendees %}
+        <tr>
+            <td>{{ event.title }}</td>
+            <td>{{event.time}}</td>
+            <td>{{event.date}}</td>
+            <td><button type="button" class="btn btn-danger btn-xs dt-delete" onclick="deleteUserEvent('{{ event.id }}','{{ user.id }}','{{event.title}}')"><i class="mdi mdi-delete-outline icon-xl"></i></button></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+<script>
+    function deleteUserEvent(eventid,userid,EventTask){
+
+        iziToast.show({
+    // theme: 'dark',
+    overlay: true,
+    zindex:999,
+    icon: 'icon-person',
+    title: 'Delete',
+    message: 'Do u want to delete Event <b>"'+EventTask+'"!</b>',
+    position: 'center', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter
+    // progressBarColor: 'rgb(0, 255, 184)',
+    // image:'static/images/faces/face5.jpg',
+    transitionIn:'bounceInDown',
+    color:'red',
+    timeout:false,
+    buttons: [['<button>Yess</button>', function (instance, toast) {
+
+
+        $.ajax({
+            url:'/delete_user_event/',
+            method:'POST',
+            data:{
+                event_Id:eventid,
+                user_Id:userid
+            },
+            dataType:'json',
+            success: function(request){
+                location.reload()
+
+                instance.hide({
+                      transitionOut: 'fadeOutUp',
+                      onClosing: function(instance, toast, closedBy){
+                          console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
+                      }
+                  }, toast, 'buttonName');
+            },error:function(){
+                console.error('Error for /delete_user_event/');
+            }
+
+        })
+    },true],
+        ['<button>No</button>', function (instance, toast) {
+            instance.hide({
+                transitionOut: 'fadeOutUp',
+                onClosing: function(instance, toast, closedBy){
+                    console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
+                }
+            }, toast, 'buttonName');
+        }]
+    
+        ],
+    onOpening: function(instance, toast){
+        console.info(evetId);
+    },
+    onClosing: function(instance, toast, closedBy){
+        console.info('closedBy: ' + closedBy); // tells if it was closed by 'drag' or 'button'
+    }
+})}
+</script>
+{% endblock %}

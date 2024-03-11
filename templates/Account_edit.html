@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+
+<!-- {% if messages %}
+    {% for message in messages %}
+        {% if message.tags == "success" %}
+            <script>
+                  iziToast.show({
+                                    title: 'Success!',
+                                    message: '{{ message|safe }}',
+                                    theme: 'dark',
+                                  })             
+            </script>
+            {% elif message.tags == "error" %}
+            <script>
+                iziToast.show({
+                                  title: 'Error!',
+                                  message: '{{ message|safe }}',
+                                  color: 'red',
+                                })             
+          </script>
+        {% endif %}
+    {% endfor %}
+{% endif %} -->
+<div class="card p-5 card">
+<div class="row justify-content-center ms-5">
+    <div class="col">
+        <div class="row ">
+            <form class="col" method="POST" action="{% url 'edit_staff' encoded_userId=info.id|encrypt_id %}">
+                {% csrf_token %}
+                <div class="col">
+           
+                    <div class="form-floating">
+                        <h5 >First Name</h5>
+                        <p>{{ userInfo.first_name }}</p>
+                    </div> 
+                    <div class="form-floating ">
+                        <h5>Last Name</h5>
+                        <p>{{ userInfo.last_name}}</p>
+                    </div>
+                    <div class="form-floating">
+                        <h5>UserName</h5>
+                        <p>{{ userInfo.username }}</p>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="form-floating">
+                        <h5>Email</h5>
+                        <p>{{ userInfo.email}}</p>
+                    </div>
+                    <div class="form-floating">
+                        <h5>Phone Number</h5>
+                        <p>{{ userInfo.phone_number}}</p>
+                    </div>
+                    <div class="row ">
+                        <div class="col">
+                            <!-- <h5>Active</h5> -->
+                            <!-- <select class="form-select" id="active_edit_od" aria-label="Floating label select example" name="active_edit" value="{{ userInfo.is_active }}">
+                                {% if userInfo.is_active %}
+                                <option selected>True</option>
+                                <option>False</option>
+                                {% else %}
+                                <option >True</option>
+                                <option selected>False</option>
+                                {% endif %}
+
+                            </select> -->
+
+                            <label class="form-check-label">
+                                <input class="checkbox" type="checkbox" name="active_edit" {% if userInfo.is_active %}checked{% endif %}> Active<i class="input-helper rounded"></i>
+                              </label>
+
+
+                            <!-- <input type="checkbox" class="btn btn-outline-primary mt-2" name="active_edit" {% if userInfo.is_active %}checked{% endif %}> -->
+                            <!-- <label for="active_edit_od" class="">Active</label> -->
+                        </div>
+                        <div class="col ">
+                            <!-- <select class="form-select" id="staff_edit_od" aria-label="Floating label select example" name="staff_edit" value="{{ userInfo.is_staff }}">
+                                {% if userInfo.is_staff %}
+                                <option selected>True</option>
+                                <option>False</option>
+                                {% else %}
+                                <option >True</option>
+                                <option selected>False</option>
+                                {% endif %}
+                            </select> -->
+
+                            <label class="form-check-label">
+                                <input class="checkbox" type="checkbox" name="staff_edit" {% if userInfo.is_staff %}checked{% endif %}> Staff<i class="input-helper rounded"></i>
+                              </label>
+                            
+                            <!-- <input type="checkbox" class="btn btn-outline-primary mt-2" name="staff_edit" {% if userInfo.is_staff %}checked{% endif %}>
+
+                            <label for="staff_edit_od" class="">Is Staff</label> -->
+                        </div>
+                    </div>
+                    <br>
+                    <caption>Groups</caption>
+                    <div class="col w-50 me-5 p-5" style="border: 1px solid black; height: 250px; border-radius: 30px;">
+                        
+                        {% for group in all_group %}
+                
+                            <input type="checkbox"  id="checkBoxm_{{group.id}}" name="groups_name" value="{{ group.id}}" {% if group.id in groups %}checked{% endif %}>
+                            <label for="checkBoxm_{{group.id}}">{{ group.name }}</label><br>
+                        {% endfor %}
+                    </div>
+                    <div class="col d-flex justify-content-end">
+                    <button type="submit" class="btn btn-outline-primary " >Save</button>
+                    </div>
+                
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col ms-5">
+        {% if userInfo.profile_image %}
+        <img class="col rounded-circle w-25"  src="{{ userInfo.profile_image.url }}">
+        {% endif %}
+    </div>
+   
+   
+</div>
+
+</div>
+
+{% endblock %}
+
+<!-- <div class="col mb-5">
+        <div class="row w-50">
+            <img class="col rounded-circle"  src="{{ userInfo.profile_image.url }}">
+            <div class="col mt-4 ms-5">
+                <h1 class="ms-3">{{ userInfo.first_name }}  {{ info.last_name }}</h1>
+                <h3 class="text-muted statistics-title ms-4"> {{ info.email }}</h3>
+                <br>
+
+                    <input type="file" >
+
+            </div>
+        </div>
+    </div> -->
+  <!-- <hr> -->

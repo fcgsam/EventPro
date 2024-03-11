@@ -1,0 +1,473 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}   
+
+<div class="col-lg-12 grid-margin stretch-card">
+  <div class="card">
+    <div class="card-body overflow-x-auto">
+      <h4 class="card-title">Task Table</h4>
+<table class="display table table-hover" id="TaskTable">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Description</th>
+      <th>venue</th>
+      <th>Date</th>
+      <th>Time</th>
+      <th>Budget</th>
+      <th>Status</th>
+      <!-- <th>Manegd by</th> -->
+      <!-- <th>Attendee</th> -->
+      <th>Task</th>
+    </tr>
+  </thead>
+
+
+  <tbody>
+    {% for event in events %}
+    {% if user.email == event.manager_email %}
+    
+    <tr class="event_id" data-id="{{ event.id }}" data-title="{{ event.title }}" data-email="{{ event.manager_email }}" data-status="{{ event.status }}" data-budget="{{ event.Budget }}">
+      <td  title="TRY TITLE">{{ event.title }}</td>
+      <td>{{ event.description }}</td>
+      <td>{{ event.venue }}</td>
+      <td>{{ event.date }}</td>
+      <td>{{ event.time }}</td>
+      {% for key, value in summs.items %}
+              {% if key == event.id %}
+              {% if value > event.Budget %}
+              <td style="color: red;">{{ value }}/ {{ event.Budget }}</td>
+              {% else %}
+              <td>{{ value }}/ {{ event.Budget }}</td>
+              {% endif %}
+              {% endif %}
+              {% endfor %}
+      {% if event.status == 'Completed'%}
+      <td>
+        <span class="badge bg-success-subtle text-success-emphasis rounded-pill">Completed</span>  
+          
+      </td>
+      {% elif event.status == 'Pending' %}
+      <td><span class="badge bg-danger-subtle text-danger-emphasis rounded-pill">Pending</span></td>
+      {% elif event.status == 'Ongoing' %}
+      <td><span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill">Ongoing</span></td>
+      {% endif %}
+      <!-- <td>{{ event.managed_by }}</td> -->
+      <!-- <td>{{ event.Attendee }}</td> -->
+      <td>
+        <button type="button" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;" data-bs-toggle="modal" data-bs-target="#new_task" >
+        Add
+        </button>
+      </td>
+      
+    </tr>
+    <!-- <input type="hidden" id="event_id" value="{{ event.id }}"> -->
+    {% endif %}
+    {% endfor %}
+    <!-- href="{% url 'delete_event' %}?edit_id_value={{ event.id }}" -->
+  </tbody>
+</table>
+
+<div class="modal fade" id="new_task" tabindex="-1" aria-labelledby="exampleModalLabel"  >
+      <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">New Task for <span value="" class="new_task_title"></span></h1>
+            <h4>Total Amount utilized for this Event : <span id="totla_amount"></span></h4>
+            <a href="{% url 'Task-page' %}"><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></a>
+          </div>
+          <div class="modal-body">
+            <div class="list-wrapper">
+              <!-- <form method="post" action="{% url 'new_task' %}">
+                {% csrf_token %} -->
+              
+                <input type="hidden" value="" id="new_task_id" name="new_task_event_id">
+                <input type="hidden" value="" id="new_task_email" name="new_task_event_email">
+                <input type="hidden" value="" id="event_status" name="event_status_name">
+                <input type="hidden" value="" id="event_budget" name="event_budget_name">
+                <div class="row w-50" id="statusAndamount">
+                  <div class="form-check form-switch ms-5 col">
+                    <input class="form-check-input" type="checkbox" role="switch" id="completedInput">
+                    <label class="form-check-label ms-1" for="completedInput"><b>Done</b> <small>(Turn On if All Tasks are Done)</small></label>
+                  </div>
+                  
+                </div>
+                <div class="row w-50" id="task_budget_btn">
+                <div class="form-floating mb-3 col-lg-4">
+                  <input type="text" class="form-control" id="floatingInputTt" placeholder="Titel" name="title_task">
+                  <label for="floatingInputTt" class="ms-2">Title</label>
+                </div>
+                <div class="form-floating mb-3 col-lg-4">
+                  <input type="number" class="form-control" id="floatingInputTBuget" placeholder="Titel" min="1" name="budget_task">
+                  <label for="floatingInputTBuget" class="ms-2">Budget</label>
+                </div>
+                <button type="button" class="btn btn-primary col-sm-2" onclick="addtask()" id="create_task">Create</button>
+                </div>
+                <table class="table table-hover" id="NewTak">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Budget</th>
+                      <th>Edit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    
+                  </tbody>
+                </table>
+                <!-- script for adding task in table ===================== -->
+                <script>
+                  // $('#floatingInputTBuget').keydown(function(event) {
+                  //   let amount = parseInt($('#totla_amount').text())
+                  //   let new_amount = parseInt($('#floatingInputTBuget').val())
+                  //   let total = amount+new_amount
+                  //   console.log('total Amount :',total)
+                  //   // $('#totla_amount').text(total)
+                  // });
+
+                  function addtask(){
+                  if ($('#floatingInputTBuget').val()>0){
+
+                  
+                  $.ajax({
+                    url: '/new_task/',
+                    method: 'POST',
+                    data: {
+                        title: $('#floatingInputTt').val(),
+                        budget: $('#floatingInputTBuget').val(), // Example budget value
+                        managed_by: $('#new_task_email').val(), // Example manager name
+                        event_id: $('#new_task_id').val(), // Example event ID
+                        status_E :$('#event_status').val(),
+                        // Add other data fields as needed
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            console.log('Task added successfully. Task ID:', response);
+                            
+                            // var newRow = $('<tr data-title = "'+$('#floatingInputTt').val()+'">');
+                            // newRow.append($('<td>').text($('#floatingInputTt').val()));
+                            // newRow.append($('<td>').text($('#floatingInputTBuget').val()));
+                            //   newRow.append($('<td>').html('<button type="button" class="btn btn-primary" id="Edit_model_popup_try"><i class="mdi mdi-pencil menu-icon icon-xl"></i></button><button type="button" class="btn btn-danger" id="Delete_model_popup_try"><i class="mdi mdi-delete-outline icon-xl"></i></button>'));
+                            // $('#NewTak tbody').append(newRow);
+                            // Optionally, do something with the returned task ID
+                            $.ajax({
+                              url: '/task_table/',
+                              method: 'POST',
+                              dataType: 'json',
+                              success: function(response) {
+                                let task = response.task
+                                $('#NewTak tbody').empty();
+                                // $('#taskTable tbody').empty();
+                                for (var i = 0; i < task.length; i++) {
+                                  // console.log("Event_id = ",task[i].Event_id)
+                                  // $('#taskTable tbody').empty();
+                                  if($('#new_task_id').val() == task[i].Event_id ){
+                                      
+                                      var newRow = $('<tr id="budg-'+task[i].id+'" data-id="'+task[i].id+'" data-title="'+task[i].title+'" data-budget="'+task[i].Budget+'"">');
+                                      newRow.append($('<td>').text(task[i].title));
+                                      newRow.append($('<td>').text(task[i].Budget));
+                                      newRow.append($('<td>').html('<button type="button" class="btn btn-primary" id="Edit_model_popup_try"><i class="mdi mdi-pencil menu-icon icon-xl"></i></button><button type="button" class="btn btn-danger" id="Delete_model_popup_try"><i class="mdi mdi-delete-outline icon-xl"></i></button>'));
+                                      $('#NewTak tbody').append(newRow);
+                                  }
+                                }
+                                if ($('#totla_amount').text() == ''){
+                                  console.log('Total amount if condtion :  ',$('#totla_amount').text() )
+                                  var amount = 0
+                                }else{
+                                  console.log('total else cndtion  :',$('#totla_amount').text())
+                                  var amount = parseInt($('#totla_amount').text())
+                                }
+                                
+                                let new_amount = parseInt($('#floatingInputTBuget').val())
+                                let total = amount+new_amount
+                                let eventBudget = $('#event_budget').val()
+                                console.log('total Amount :',eventBudget)
+                                $('#totla_amount').text(total)
+                                if(eventBudget<total){
+                                  if (!$('#ammount_mssg').length) {
+                                  $('#statusAndamount').append('<p class="card col" style="background-color: red; padding-top: 6px;" id="ammount_mssg">You exceeded the allocated amount!</p>');
+                                  }
+                                }else{
+                                  $('#ammount_mssg').remove();
+                                 
+                                    iziToast.show({
+                                    title: 'Task',
+                                    message: 'Task Add succesfully',
+                                    color: 'green'
+                                });
+                            
+                                }
+                                
+                              }
+                            })
+                        } else {
+                            console.error('Error adding task:', response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error adding task:', error);
+                    }
+                  });
+                }else{
+                  alert('value is not proper')
+                }
+              }
+                </script>
+                <!-- end script=========================================== -->
+                <!-- <button type="submit" class="btn btn-primary">Save</button> -->
+              </form>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <a href="{% url 'Task-page' %}"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    <!-- <div class="modal fade" id="delete_model" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          
+          <div class="modal-body" id="delete_task_popup" value="">
+            <form method="POST" action="#">
+              {% csrf_token %}
+              <p>Are you sure you want to Delete '<span class="task_spain_class"></span>'?</p>
+              
+              <input type="hidden" name="deleting_id" id="popup_delete" value=""><br><br>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">no</button>
+              <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" id="confirmYes">Yes</button>
+            </form>
+          </div>
+      </div>
+    </div> -->
+
+
+    <!-- <div class="modal fade" id="edit_model" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editModalLabel">Edit</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          
+          <div class="modal-body" id="edit_task_popup" value="">
+            <form method="POST" action="#">
+              {% csrf_token %}
+              <p>Are you sure you want to Delete '<span class="task_spain_class"></span>'?</p>
+              
+              <input type="hidden" name="deleting_id" id="popup_edit" value=""><br><br>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">no</button>
+              <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Yes</button>
+            </form>
+          </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="delete_model" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Delete</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          
+          <div class="modal-body" id="delete_task_popup" value="">
+            <form method="POST" action="#">
+              {% csrf_token %}
+              <p>Are you sure you want to Delete '<span class="task_spain_class"></span>'?</p>
+              
+              <input type="hidden" name="deleting_id" id="popup_edit" value=""><br><br>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">no</button>
+              <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Yes</button>
+            </form>
+          </div>
+      </div>
+    </div> -->
+
+
+    <!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="edit_model" tabindex="-1" aria-labelledby="edit_modelLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="edit_modelLabel">Edit</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body row">
+
+        <input type="hidden" class="delete_task_id" name="edit_task_id_name">
+        <input type="hidden" class="amount_id" name="amount_name">
+        <div class="form-floating mb-3 col-lg-4 col">
+          <input type="text" class="form-control" id="Edit_task_title" placeholder="Titel" name="edit_task_title_name">
+          <label for="Edit_task_title" class="ms-2">Title</label>
+        </div>
+        <div class="form-floating mb-3 col-lg-4 col">
+          <input type="number" class="form-control" id="edit_task_budget" placeholder="Titel" min="1" name="edit_task_budget_name">
+          <label for="edit_task_budget" class="ms-2">Budget</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="save_edit_task" onclick="edit_task()" data-bs-dismiss="modal">Save changes</button>
+      </div>
+    <!-- </form> -->
+    </div>
+  </div>
+</div>
+
+
+<!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="delete_model" tabindex="-1" aria-labelledby="delete_modelLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="delete_modelLabel">Delete</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Do u want to delete '<b><span id="delete_span_id"></span>'</b></p>
+        <input type="hidden" class="delete_task_id" name="delete_task_id_name">
+        <input type="hidden" class="amount_id" name="amount_name">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="delete_task()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+
+  function edit_task(){
+  if($('#edit_task_budget').val()>0){
+    $.ajax({
+    url: '/edit_task/',
+    method: 'POST',
+    data: {
+        task_id: $('.delete_task_id').val(),
+        title: $('#Edit_task_title').val(),
+        budget: $('#edit_task_budget').val(),
+        // Add other data fields as needed
+    },
+    dataType: 'json',
+    success: function(response) {
+        if (response.status === 'success') {
+            // Optionally, perform actions after successful update
+            if(parseInt($('.amount_id').val()) != parseInt($('#edit_task_budget').val())){
+              let total =parseInt($('#totla_amount').text())-parseInt($('.amount_id').val())+parseInt($('#edit_task_budget').val())
+              var newValue = $('#budg-'+$('.delete_task_id').val())
+              newValue.data('budget', $('#edit_task_budget').val());
+              // console.log("Lett total :",$('.amount_id').val())
+              $('#totla_amount').text(total)
+
+              if(parseInt($('#event_budget').val())<total){
+                if (!$('#ammount_mssg').length) {
+                      $('#statusAndamount').append('<p class="card col" style="background-color: red; padding-top: 6px;" id="ammount_mssg">You exceeded the allocated amount!</p>');
+                }
+              }else{
+                      $('#ammount_mssg').remove();}
+            }
+            
+            updatedData = [
+                //  $('.delete_task_id').val(),
+                 $('#Edit_task_title').val(),
+                $('#edit_task_budget').val(),
+                // Add more fields as needed
+        ];
+            updateUITable($('.delete_task_id').val(), updatedData);
+        } else {
+            console.error('Error updating task:', response.message);
+        }
+    },
+    error: function(xhr, status, error) {
+        console.error('Error updating task:', error);
+    }
+      });
+      }else{
+      alert('value is nopt valid')
+      }
+  }
+
+  function updateUITable(rowId, updatedData){
+    let row = $('tr[data-id="' + rowId + '"]');
+    if (row.length > 0) {
+        // Update the table row with the new data
+        row.find('td').each(function(index) {
+            // Update each cell in the row with corresponding data from newData
+            $(this).text(updatedData[index]);
+        });
+    } else {
+        console.log('Row with data-id "' + dataId + '" not found.');
+    }
+
+  }
+
+  function delete_task(){
+    console.log("delete this ",$('#new_task_id').val())
+    $.ajax({
+    url: '/delete_task/',
+    method: 'POST',
+    data: {
+        task_id: $('.delete_task_id').val(),
+        // Add other data fields as needed
+        event_id:$('#new_task_id').val()
+    },
+    dataType: 'json',
+    success: function(response) {
+        if (response.status === 'success') {
+            // Optionally, perform actions after successful update
+            let total =parseInt($('#totla_amount').text())-parseInt($('.amount_id').val())
+            console.log("Lett total :",parseInt($('#totla_amount').text()))
+            $('#totla_amount').text(total)
+            typeof($('#event_budget').val(),'type fo')
+            if(parseInt($('#event_budget').val())<total){
+              if (!$('#ammount_mssg').length) {
+                    $('#statusAndamount').append('<p class="card col" style="background-color: red; padding-top: 6px;" id="ammount_mssg">You exceeded the allocated amount!</p>');
+              }
+            }else{
+                    $('#ammount_mssg').remove();
+                  }
+            deleteUITable($('.delete_task_id').val());
+        } else {
+            console.error('Error updating task:', response.message);
+        }
+    },
+    error: function(xhr, status, error) {
+        console.error('Error updating task:', error);
+    }
+      });
+  }
+
+  function deleteUITable(taskId){
+    
+    let row = $('tr[data-id="' + taskId + '"]');
+    if (row.length > 0) {
+        // Update the table row with the new data
+        row.remove();
+    } else {
+        console.log('Row with data-id "' + dataId + '" not found.');
+    }
+  }
+  
+
+</script>
+
+ {% endblock %}
+
