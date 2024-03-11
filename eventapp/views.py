@@ -456,6 +456,7 @@ def profile_edit(request):
             return redirect('home')
         
 def password_page(request):
+    global current_password
     if request.method == 'POST' and request.user.is_authenticated:
         current_password = request.POST.get('Current_password')
         check_password = authenticate(request, username=request.user.email, password=current_password)
@@ -473,11 +474,16 @@ def password_reset(request):
         password1 = request.POST.get('password_c1')
         password2 = request.POST.get('password_c2')
 
+        
         if password1 != password2:
             messages.error(request,'The password doesn\'t match')
             return render(request,'password_update.html')
         if password1 == '' :
             messages.error(request,'Enter password')
+            return render(request,'password_update.html')
+        
+        if current_password == password1:
+            messages.error(request,'Please Enter a New Password')
             return render(request,'password_update.html')
         print(password1,password2)
         user.set_password(password1)

@@ -65,6 +65,13 @@
         window.marketingOverviewChart.destroy();
     }
       // console.log("num,betr of attend",event_attendee,Math.max(...event_attendee))
+      if (event_attendee.length > 0) {
+        var maxValue = Math.max.apply(null, event_attendee);
+        console.log(maxValue);
+      }
+      else{
+        var maxValue = 0
+      }
       if ($("#marketingOverview").length) { 
         const marketingOverviewCanvas = document.getElementById('marketingOverview');
         window.marketingOverviewChart = new Chart(marketingOverviewCanvas, {
@@ -101,7 +108,7 @@
                       return value.toLocaleString(undefined, { maximumFractionDigits: 0 }); // Format y-axis number
                     },
                     suggestedMin: 0,
-                    // maxTicksLimit: Math.max(...event_attendee)
+                    maxTicksLimit: maxValue+1
                 }
             },
             x:{
