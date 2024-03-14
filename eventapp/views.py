@@ -24,6 +24,7 @@ from django.contrib.auth.models import User,Group,Permission
 
 # Create your views here.
 def desboard_page(request):
+    
     amount=0
     summ={}
     percentage ={}
@@ -288,6 +289,9 @@ def total_amount(request):
 # def User_Event_page(request):
 #     events = Event.objects.all()
 #     return render(request, 'Event_user.html', {'events': events})
+def hasedValue():
+    cipherHas = cipher_suite
+    return cipherHas
 @login_required(login_url='login_page')
 def Acount_new_page(request):
     
@@ -319,7 +323,8 @@ def Account_edit(request,encoded_userId):
         # return render(request,'Account_edit.html',context)
         try:
             # Decrypt the user ID
-            userId = cipher_suite.decrypt(encoded_userId.encode()).decode()
+            haed = hasedValue()
+            userId = haed.decrypt(encoded_userId.encode()).decode()
             print('333112',userId)
             userInfo = CustomUser.objects.get(id=userId)
             print('323333',userInfo)

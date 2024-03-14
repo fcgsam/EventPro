@@ -35,7 +35,15 @@
 {% endif %}
  <div class="row">
     <div class="col-3 " style="border-right: 1px solid black;">
-      
+        <!-- <div class="card-p" style="height: 300px; border-radius: 50px;">
+            
+                <img id="profile_image_edit" class="para " {% if user.profile_image %}  src="{{ user.profile_image.url }}" {% else %} src ="" {% endif %}>
+                {% if not request.user.socialaccount_set.all %}
+            <div class="overlay"></div>
+            
+            <input type="file" class="form-control card-btn" id="profile_file" name="profile_pic" accept="image/*" >
+            {% endif %}
+          </div> -->
         
         
         {% if request.user.socialaccount_set.all %}
