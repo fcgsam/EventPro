@@ -1,0 +1,848 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == "success" %}
+
+            <script>
+              console.log('{{user.profile_image}}')
+              {% if request.user.socialaccount_set.all %}
+            {% with social_account=request.user.socialaccount_set.all.0 %}
+                {% if social_account.provider == 'google' %} 
+                iziToast.show({
+                                    title: 'Hey!',
+                                    
+                                    image:'{{ social_account.extra_data.picture }}',
+                                    message: '{{ message|safe }}',
+                                    theme: 'dark',
+                                    transitionIn:	'flipInX',
+                                    position	:'topCenter',
+                                    
+                                  })
+                {% endif %}
+      {% endwith %}
+      {% else %}
+                  iziToast.show({
+                                    title: 'Hey!',
+                                    
+                                    image:'media/{{ user.profile_image }}',
+                                    message: '{{ message|safe }}',
+                                    theme: 'dark',
+                                    transitionIn:	'flipInX',
+                                    position	:'topCenter',
+                                    
+                                  })
+                                    
+                     {% endif %}     
+                </script>
+        {% endif %}
+        {% endfor %}
+{% endif %}
+{% if user.is_superuser or user.is_staff %}
+
+
+<p class="card-subtitle card-subtitle-dash mb-3">Recent Event</p>
+                      <div class="col-sm-12">
+                        
+                        <div class="statistics-details d-flex align-items-center justify-content-between">
+                          <!-- <div>
+                            <p class="statistics-title">Bounce Rate</p>
+                            <h3 class="rate-percentage">32.53%</h3>
+                            <p class="text-danger d-flex"><i class="mdi mdi-menu-down"></i><span>-0.5%</span></p>
+                          </div> -->
+                          
+                          {% for event in events|slice:":5" %}
+                          
+                          <a class="nav-link count-indicator" id="Eventdrop" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                            
+                          <div class="card_event " style="width: 150px; padding-left: 10px; border-radius: 20px;" onclick="tasktable('{{ event.id }}')">
+                            <!-- <div> -->
+                            <p class="statistics-title d-flex justify-content-center">{{ event.title }}</p>
+                            <h3 class="rate-percentage d-flex justify-content-center " id="Amount_animation_{{ event.id }}" ></h3>
+                            {% for key, value in summs.items %}
+                            {% if key == event.id %}
+                            {% if value > event.Budget %}
+                            <p class="text-danger d-flex justify-content-center"><span  class="task_amount_{{ key }}"></span></p>
+                            {% else %}
+                            <p class="text-success d-flex  justify-content-center"><span  class="task_amount_{{ key }}"></span></p>
+                            {% endif %}
+                            <script>
+                              var iDD = '.task_amount_{{ key }}'
+                              var amount = '{{ value }}'
+                              $(iDD).each(function() {
+                                  var $this = $(this),
+                                      countTo = parseInt(amount)
+                                  console.log('amount,:::::::',countTo)
+                                  $({ countNum: $this.text()}).animate({
+                                    countNum: countTo
+                                  },
+                                
+                                  {
+                                
+                                    duration: 1000,
+                                    easing:'linear',
+                                    step: function() {
+                                      $this.text("$"+Math.floor(this.countNum).toLocaleString());
+                                    },
+                                    complete: function() {
+                                      $this.text("$"+this.countNum.toLocaleString());
+                                      // alert('finished');
+                                    }
+                                  });  
+                                });
+                  
+                            </script>
+                            {% endif %}
+
+                            {% endfor %}
+                          </div>
+                          </a>
+                          <script>
+                            var iDD = '#Amount_animation_{{ event.id }}'
+                            var amount = '{{ event.Budget }}'
+                            $(iDD).each(function() {
+                              var $this = $(this),
+                                  countTo = parseInt(amount)
+                              console.log('amount,:::::::',countTo)
+                              $({ countNum: $this.text()}).animate({
+                                countNum: countTo
+                              },
+                            
+                              {
+                            
+                                duration: 1000,
+                                easing:'linear',
+                                step: function() {
+                                  $this.text("$"+Math.floor(this.countNum).toLocaleString());
+                                },
+                                complete: function() {
+                                  $this.text("$"+this.countNum.toLocaleString());
+                                  // alert('finished');
+                                }
+                              });  
+                            });
+                
+                          </script>
+                          {% endfor %}
+                          
+
+                          <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="Eventdrop">
+                            <h4 class="m-4">Top Two Most Expancive Tasks</h4>
+                            <table class="displays table table-hover" id="deshpordtable">
+                              <thead>
+                                <th>Title</th>
+                                <th>Budget</th>
+                                
+                              </thead>
+                              <tbody>
+                                
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-8 d-flex flex-column">
+                        <div class="row flex-grow">
+                          <div class="col-12 grid-margin stretch-card">
+                            <div class="card card-rounded">
+                              <div class="card-body">
+                                <div class="d-sm-flex justify-content-between align-items-start">
+                                  <div>
+                                    <h4 class="card-title card-title-dash">Event Overview</h4>
+                                    <p class="card-subtitle card-subtitle-dash">Total Attendee in events for this mounth</p>
+                                  </div>
+                                  <div>
+                                    <!-- <div class="dropdown">
+                                      <button class="btn btn-light dropdown-toggle toggle-dark btn-lg mb-0 me-0"
+                                        type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false"> This month </button>
+                                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                        <h6 class="dropdown-header">Settings</h6>
+                                        <a class="dropdown-item" href="#">Action</a>
+                                        <a class="dropdown-item" href="#">Another action</a>
+                                        <a class="dropdown-item" href="#">Something else here</a>
+                                        <div class="dropdown-divider"></div>
+                                        <p class="dropdown-item" >Year Wise</a>
+                                          
+                                      </div>
+                                    </div> -->
+                                    <!-- <div id="date-picker-example" class="md-form md-outline input-with-post-icon datepicker" inline="true">
+                                      <input placeholder="Select date" type="text" id="example" class="form-control">
+                                      <label for="example">Try me...</label>
+                                      <i class="fas fa-calendar input-prefix"></i>
+                                    </div> -->
+                                    <input  type="month"  id="deshbord_date" class="form-control" placeholder="Select date">
+                                    
+                                  </div>
+                                </div>
+                                <div class="d-sm-flex align-items-center mt-1 justify-content-between">
+                                  <div class="d-sm-flex align-items-center mt-4 justify-content-between">
+                                    <!-- <h2 class="me-2 fw-bold" id="animatedNumber_chart" data-count="0">0</h2> -->
+                                    <!-- <h4 class="me-2">USD</h4> -->
+                                    <!-- <h4 class="text-success">(+1.37%)</h4> -->
+                                  </div>
+                                  <div class="me-3">
+                                    <div id="marketingOverview-legend"></div>
+                                  </div>
+                                </div>
+                                <div class="chartjs-bar-wrapper mt-3">
+                                  <canvas id="marketingOverview"></canvas>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row flex-grow">
+                          <div class="col-12 grid-margin stretch-card">
+                            <div class="card card-rounded">
+                              <div class="card-body">
+                                <div class="d-sm-flex justify-content-between align-items-start">
+                                  <div>
+                                    <h4 class="card-title card-title-dash">Budget Status</h4>
+                                    <!-- <p class="card-subtitle card-subtitle-dash">You have 50+ new requests</p> -->
+                                  </div>
+                                  {% if user.is_superuser %}
+                                  <div>
+                                    <a href="{% url 'Event-page' %}">
+                                    <button class="btn btn-outline-primary btn-lg mb-0 me-0" type="button"><i
+                                        class="mdi mdi-account-plus"></i>Add new Event</button></a>
+                                  </div>
+                                  {% endif %}
+                                </div>
+                                <div class="table-responsive  mt-1">
+                                  <table class="table table-hover">
+                                    <thead>
+                                      <tr>
+                                        {% if user.is_superuser %}
+                                        <th>Staff</th>
+                                        <th>Title</th>
+                                        <th>Budget Used</th>
+                                        {% elif user.is_staff %}
+                                        
+                                        <th>Title</th>
+                                        <th>Budget Used</th>
+
+                                        {% endif %}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {% for event in events|slice:":5" %}
+                                      {% for info in user_info %}
+                                      {% if info.email == event.manager_email %}
+                                      {% for key, value in summs.items %}
+                                      {% if key == event.id %}
+                                      {% for keyp, valuep in percentages.items %}
+                                      
+                                      {% if keyp == event.id %}
+                                      <tr>
+                                        {% if user.is_superuser %}
+                                        <td>
+                                          <div class="d-flex ">
+                                            <img src="{{ info.profile_image.url }}" alt="">
+                                            <div>
+                                              <h6>{{ info.first_name }}</h6>
+                                              <p>{{ info.email }}</p>
+                                            </div>
+                                          </div>
+                                        </td>
+                                        {% endif %}
+
+                                        <td>
+                                          <h6>{{ event.title }}</h6>
+                                          <!-- <p>company type</p> -->
+                                        </td>
+                                       
+                                        {% if valuep < 26 %}
+                                        <td>
+                                          <div>
+                                            <div
+                                              class="d-flex justify-content-between align-items-center mb-1 max-width-progress-wrap">
+                                              <p class="text-success">{{ valuep }}%</p>
+                                              <p>{{ value }}/{{ event.Budget}}</p>
+                                            </div>
+                                            <div class="progress progress-md">
+                                              <div class="progress-bar bg-success" role="progressbar" style="width: {{ valuep }}%"
+                                                aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                          </div>
+                                        </td>
+                                        {% elif valuep > 26 and valuep < 51 %}
+                                        <td>
+                                          <div>
+                                            <div
+                                              class="d-flex justify-content-between align-items-center mb-1 max-width-progress-wrap">
+                                              <p class="text-info">{{ valuep }}%</p>
+                                              <p>{{ value }}/{{ event.Budget}}</p>
+                                            </div>
+                                            <div class="progress progress-md">
+                                              <div class="progress-bar bg-info" role="progressbar" style="width: {{ valuep }}%"
+                                                aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                          </div>
+                                        </td>
+                                        {% elif valuep > 51 and valuep < 76 %}
+                                        <td>
+                                          <div>
+                                            <div
+                                              class="d-flex justify-content-between align-items-center mb-1 max-width-progress-wrap">
+                                              <p class="text-warning">{{ valuep }}%</p>
+                                              <p>{{ value }}/{{ event.Budget}}</p>
+                                            </div>
+                                            <div class="progress progress-md">
+                                              <div class="progress-bar bg-warning" role="progressbar" style="width: {{ valuep }}%"
+                                                aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                          </div>
+                                        </td>
+                                        {% elif valuep > 76 and valuep < 101 %}
+                                        <td>
+                                          <div>
+                                            <div
+                                              class="d-flex justify-content-between align-items-center mb-1 max-width-progress-wrap">
+                                              <p class="text-danger">{{ valuep }}%</p>
+                                              <p>{{ value }}/{{ event.Budget}}</p>
+                                            </div>
+                                            <div class="progress progress-md">
+                                              <div class="progress-bar bg-danger" role="progressbar" style="width: {{ valuep }}%"
+                                                aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                          </div>
+                                        </td>
+                                        {% endif %}
+                                        
+                                      </tr>
+                                      {% endif %}
+                                      {% endfor %}
+                                      {% endif %}
+                                      {% endfor %}
+                                      {% endif %}
+                                      {% endfor %}
+                                      {% endfor %}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row flex-grow">
+                          <div class="col-md-6 col-lg-6 grid-margin stretch-card">
+                            <div class="card card-rounded">
+                              <div class="card-body card-rounded">
+                                <h4 class="card-title  card-title-dash">Recent Events</h4>
+                                {% for event in events|slice:":5" %}
+                                
+                                
+                                <div class="list align-items-center border-bottom py-2">
+                                  <div class="wrapper w-100">
+                                    <p class="mb-2 font-weight-medium">
+                                      {{ event.title }}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                      <div class="d-flex align-items-center">
+                                        <i class="mdi mdi-calendar text-muted me-1"></i>
+                                        <p class="mb-0 text-small text-muted">{{ event.date }}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                
+                                {% endfor %}
+
+                                <div class="list align-items-center pt-3">
+                                  <div class="wrapper w-100">
+                                    <p class="mb-0">
+                                      {% if user.is_superuser %}
+                                      <a href="{% url 'Event-page' %}" class="fw-bold text-primary">Show all <i
+                                          class="mdi mdi-arrow-right ms-2"></i></a>
+                                      {% else %}
+                                      <a href="{% url 'Task-page' %}" class="fw-bold text-primary">Show all <i
+                                        class="mdi mdi-arrow-right ms-2"></i></a>
+                                      {% endif %}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-6 col-lg-6 grid-margin stretch-card">
+                            <div class="card card-rounded">
+                              <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                  <h4 class="card-title card-title-dash">Event</h4>
+                                  <p class="mb-0">N0. OF task</p>
+                                </div>
+                                <ul class="bullet-line-list">
+                                  {% for event in events|slice:":5" %}
+                                {% for key ,value  in numbersotask.items %}
+                           
+                                {% if key == event.id %}
+                                  <li>
+                                    <div class="d-flex justify-content-between">
+                                      {% if user.is_superuser %}
+                                      <div><span class="text-light-green">{{ event.title }}</span> assign to <b>{{ event.managed_by }}</b></div>
+                                      {% else %}
+                                      <div><span class="text-light-green">{{ event.title }}</span> assign by <b>{{ event.created_by }}</b></div>
+                                      {% endif %}
+                                      <p>{{ value }}</p>
+                                    </div>
+                                  </li>
+                                  {% endif %}
+                                {% endfor %}
+                                {% endfor %}
+                                </ul>
+                                <div class="list align-items-center pt-3">
+                                  <div class="wrapper w-100">
+                                    {% if user.is_superuser %}
+                                    <p class="mb-0">
+                                      <a href="{% url 'Event-page' %}" class="fw-bold text-primary">Show all <i
+                                          class="mdi mdi-arrow-right ms-2"></i></a>
+                                    </p>
+                                    {% else %}
+                                    <p class="mb-0">
+                                      <a href="{% url 'Task-page' %}" class="fw-bold text-primary">Show all <i
+                                          class="mdi mdi-arrow-right ms-2"></i></a>
+                                    </p>
+                                    {% endif %}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-4 d-flex flex-column">
+                        
+                        <div class="row flex-grow">
+                          <div class="col-12 grid-margin stretch-card">
+                            <div class="card card-rounded">
+                              <div class="card-body">
+                                <div class="row">
+                                  <div class="col-lg-12">
+                                    <h4 class="card-title  card-title-dash">Recent Events Status</h4>
+                                {% for event in events|slice:":5" %}
+                                <!-- {% for key ,value  in numbersotask.items %}
+                           
+                                {% if key == event.id %} -->
+                                
+                                <div class="list align-items-center border-bottom py-2">
+                                  <div class="wrapper w-100">
+                                    <p class="mb-2 font-weight-medium">
+                                      {{ event.title }}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                      <div class="d-flex align-items-center">
+                                        <i class="mdi mdi-align-horizontal-distribute menu-icon"> </i>  
+                                        {% if event.status == 'Completed'%}
+                                        <p class="mb-0 text-small text-muted">Status : <span class="badge bg-success-subtle text-success-emphasis rounded-pill">Completed</span></p>
+                                        {% elif event.status == 'Pending' %}
+                                        <p class="mb-0 text-small text-muted">Status : <span class="badge bg-danger-subtle text-danger-emphasis rounded-pill">Pending</span></p>
+                                        {% elif event.status == 'Ongoing' %}
+                                        <p class="mb-0 text-small text-muted">Status : <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill">Ongoing</span></p>
+                                        {% endif %}
+                                        
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- {% endif %}
+                                {% endfor %} -->
+                                {% endfor %}
+
+                                <div class="list align-items-center pt-3">
+                                  <div class="wrapper w-100">
+                                    {% if user.is_superuser %}
+                                    <p class="mb-0">
+                                      <a href="{% url 'Event-page' %}" class="fw-bold text-primary">Show all<i
+                                          class="mdi mdi-arrow-right ms-2"></i></a>
+                                    </p>
+                                    {% else %}
+                                    <p class="mb-0">
+                                      <a href="{% url 'Task-page' %}" class="fw-bold text-primary">Show all<i
+                                          class="mdi mdi-arrow-right ms-2"></i></a>
+                                    </p>
+                                    {% endif %}
+                                  </div>
+                                </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row flex-grow">
+                          <div class="col-12 grid-margin stretch-card">
+                            <div class="card card-rounded">
+                              <div class="card-body">
+                                <div class="row">
+                                  <div class="col-lg-12">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                      <h4 class="card-title card-title-dash">Total Budget of events in this Mounth:<span id="totalBudgetEvent"></span></h4>
+                                    </div>
+                                    <div>
+                                      <canvas class="my-auto" id="doughnutChart"></canvas>
+                                    </div>
+                                    <div id="doughnutChart-legend" class="mt-5 text-center"></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- <div class="row flex-grow">
+                          <div class="col-12 grid-margin stretch-card">
+                            <div class="card card-rounded">
+                              <div class="card-body">
+                                <div class="row">
+                                  <div class="col-lg-12">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                      <div>
+                                        <h4 class="card-title card-title-dash">Leave Report</h4>
+                                      </div>
+                                      <div>
+                                        <div class="dropdown">
+                                          <button class="btn btn-light dropdown-toggle toggle-dark btn-lg mb-0 me-0"
+                                            type="button" id="dropdownMenuButton3" data-bs-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false"> Month Wise </button>
+                                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
+                                            <h6 class="dropdown-header">week Wise</h6>
+                                            <a class="dropdown-item" href="#">Year Wise</a>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="mt-3">
+                                      <canvas id="leaveReport"></canvas>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div> -->
+                        <div class="row flex-grow">
+                          <div class="col-12 grid-margin stretch-card">
+                            <div class="card card-rounded">
+                              <div class="card-body">
+                                <div class="row">
+                                  <div class="col-lg-12">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                      <div>
+                                        <h4 class="card-title card-title-dash">Top Performer</h4>
+                                      </div>
+                                    </div>
+                                    <div class="mt-3">
+                                      
+                                      {% for event in events|slice:":5" %}
+                                      {% for info in user_info %}
+                                      {% if info.email == event.manager_email %}
+                                      <!-- {% for key, value in summs.items %}
+                                      {% if key == event.id %} -->
+                                      {% for keyp, valuep in percentages.items %}
+                                      
+                                      {% if keyp == event.id %}
+                                      {% if valuep < 81 %}
+                                      {% if user.is_superuser %}
+                                      <div
+                                        class="wrapper d-flex align-items-center justify-content-between py-2 border-bottom">
+                                        <div class="d-flex">
+                                          <img class="img-sm rounded-10" src="{{ info.profile_image.url }}"
+                                            alt="profile">
+                                          <div class="wrapper ms-3">
+                                            <p class="ms-1 mb-1 fw-bold">{{ info.first_name }} {{ info.last_name }}</p>
+                                            <small class="text-muted mb-0">{{ valuep }}% Budget Used</small>
+                                          </div>
+                                        </div>
+                                        <div class="text-muted text-small">
+                                          {{ event.title }}
+                                        </div>
+                                      </div>
+                                      {% else %}
+                                      <div
+                                        class="wrapper d-flex align-items-center justify-content-between py-2 border-bottom">
+                                        <div class="d-flex">
+                                          
+                                          <div class="wrapper ms-3">
+                                            <p class="ms-1 mb-1 fw-bold">{{ event.title }}</p>
+                                            <small class="text-muted mb-0">{{ event.description }}</small>
+                                          </div>
+                                        </div>
+                                        <div class="text-muted text-small">
+                                          {{ valuep }}% Budget used
+                                        </div>
+                                      </div>
+                                      {% endif %}
+                                      {% endif %}
+                                      {% endif %}
+                                      {% endfor %}
+                                      <!-- {% endif %}
+                                      {% endfor %} -->
+                                      {% endif %}
+                                      {% endfor %}
+                                      {% endfor %}
+                                      <!-- <div
+                                        class="wrapper d-flex align-items-center justify-content-between py-2 border-bottom">
+                                        <div class="d-flex">
+                                          <img class="img-sm rounded-10" src="images/faces/face2.jpg"
+                                            alt="profile">
+                                          <div class="wrapper ms-3">
+                                            <p class="ms-1 mb-1 fw-bold">Wayne Murphy</p>
+                                            <small class="text-muted mb-0">162543</small>
+                                          </div>
+                                        </div>
+                                        <div class="text-muted text-small">
+                                          1h ago
+                                        </div>
+                                      </div>
+                                      <div
+                                        class="wrapper d-flex align-items-center justify-content-between py-2 border-bottom">
+                                        <div class="d-flex">
+                                          <img class="img-sm rounded-10" src="images/faces/face3.jpg"
+                                            alt="profile">
+                                          <div class="wrapper ms-3">
+                                            <p class="ms-1 mb-1 fw-bold">Katherine Butler</p>
+                                            <small class="text-muted mb-0">162543</small>
+                                          </div>
+                                        </div>
+                                        <div class="text-muted text-small">
+                                          1h ago
+                                        </div>
+                                      </div>
+                                      <div
+                                        class="wrapper d-flex align-items-center justify-content-between py-2 border-bottom">
+                                        <div class="d-flex">
+                                          <img class="img-sm rounded-10" src="images/faces/face4.jpg"
+                                            alt="profile">
+                                          <div class="wrapper ms-3">
+                                            <p class="ms-1 mb-1 fw-bold">Matthew Bailey</p>
+                                            <small class="text-muted mb-0">162543</small>
+                                          </div>
+                                        </div>
+                                        <div class="text-muted text-small">
+                                          1h ago
+                                        </div>
+                                      </div>
+                                      <div class="wrapper d-flex align-items-center justify-content-between pt-2">
+                                        <div class="d-flex">
+                                          <img class="img-sm rounded-10" src="images/faces/face5.jpg"
+                                            alt="profile">
+                                          <div class="wrapper ms-3">
+                                            <p class="ms-1 mb-1 fw-bold">Rafell John</p>
+                                            <small class="text-muted mb-0">Alaska, USA</small>
+                                          </div>
+                                        </div>
+                                        <div class="text-muted text-small">
+                                          1h ago
+                                        </div>
+                                      </div> -->
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      
+                      <script>
+                      $('#deshbord_date').attr('placeholder', 'Select date')
+    $('#deshbord_date').change(function() {
+      // Get the selected date from the input value
+      console.log('yess')
+      var selectedDate = $(this).val();
+      
+      // Do something with the selected date, such as displaying it
+      console.log('Selected date:', selectedDate);
+    });
+                      
+                        function tasktable(eventId){
+                        
+                          
+                          $.ajax({
+                              url: '/top_task/',
+                              method: 'POST',
+                              data:{
+                                event_id:eventId
+                              },
+                              dataType: 'json',
+                              success: function(response) {
+                                let task = response.task
+                                console.log(task)
+                                budgetarray = []
+                                console.log('taskk :',task)
+                                $('#deshpordtable tbody').empty();
+                                for (var i = 0; i < task.length; i++) {
+                                  if (i==2){
+                                    break;
+                                  }
+                                  if(eventId == task[i].Event_id ){
+                                      var newRow = $('<tr id="budg-'+task[i].id+'" data-id="'+task[i].id+'">');
+                                      newRow.append($('<td>').text(task[i].title));
+                                      newRow.append($('<td>').text(task[i].Budget));
+                                      $('#deshpordtable tbody').append(newRow);
+                                  }
+                                }
+                                                                
+                              },error: function(xhr, status, error) {
+                                  console.error('Error adding task:', error);
+                              }
+                            })
+
+                          }
+                                 </script>
+{% else %}
+
+
+<div class="row row-cols-1 row-cols-md-4">
+
+{% if user.is_authenticated %}
+
+
+      {% for event in userevents %}
+
+        {% if event.id in attendees %}
+          <div class="card-f mb-4 me-3" style="background-color: #0a58ca;">
+            <div class="card-details">
+              <p class="text-title" style="color: aliceblue;">{{ event.title }}</p>
+              <p class="text-body"><b>Description :</b>{{ event.description }}</p>
+              <p class="text-body"><b>Venue :</b>{{ event.venue }}</p>
+              <p class="text-body"><b>Date :</b>{{ event.date }} | Time :{{ event.time }}</p>
+            </div>
+            <b><p>Registerd</p></b>
+          </div>
+        {% else %}
+        
+          {% if event.id in presentDate %}
+            <div class="card-f mb-4 me-3" style="background-color: gray;">
+              <div class="card-details">
+                <p class="text-title" style="color:#0a58ca;">{{ event.title }}</p>
+                <p class="text-body"><b>Description :</b>{{ event.description }}</p>
+                <p class="text-body"><b>Venue :</b>{{ event.venue }}</p>
+                <p class="text-body"><b>Date :</b>{{ event.date }}  <b>Time :</b>{{ event.time }}</p>
+              </div>
+              <p style="color: white;">The date has passed.</p>
+            </div>
+          {% else %}
+            <div class="card-f mb-4 me-3">
+              <div class="card-details">
+                <p class="text-title" style="color:#0a58ca;">{{ event.title }}</p>
+                <p class="text-body"><b>Description :</b>{{ event.description }}</p>
+                <p class="text-body"><b>Venue :</b>{{ event.venue }}</p>
+                <p class="text-body"><b>Date :</b>{{ event.date }}  <b>Time :</b>{{ event.time }}</p>
+              </div>
+              <button class="card-button" onclick="attendEvent('{{ event.id }}','{{ event.title }}','{{ user.id }}')">Add</button>
+              </div>
+          {% endif %}
+
+        {% endif %}
+
+      {% endfor %}
+
+{%else%}
+  {% for event in userevents %}
+
+        
+          
+          {% if event.id in presentDate %}
+          <div class="card-f mb-4 me-3" style="background-color: gray;">
+            <div class="card-details">
+              <p class="text-title" style="color:#0a58ca;">{{ event.title }}</p>
+              <p class="text-body"><b>Description :</b>{{ event.description }}</p>
+              <p class="text-body"><b>Venue :</b>{{ event.venue }}</p>
+              <p class="text-body"><b>Date :</b>{{ event.date }} | Time :{{ event.time }}</p>
+              </div>
+              <p style="color: white;">The date has passed.</p>
+            </div>          
+          {% else %}
+          <div class="card-f mb-4 me-3">
+            <div class="card-details">
+              <p class="text-title" style="color:#0a58ca;">{{ event.title }}</p>
+              <p class="text-body"><b>Description :</b>{{ event.description }}</p>
+              <p class="text-body"><b>Venue :</b>{{ event.venue }}</p>
+              <p class="text-body"><b>Date :</b>{{ event.date }} | Time :{{ event.time }}</p>
+            </div>
+            <a href="{% url 'login_page' %}"><button class="card-button">Add</button></a>
+            </div>
+          {% endif %}
+
+  {% endfor %}
+{% endif %}
+</div>
+  <script>
+    
+      function attendEvent(eventId,eventTitle,userid){
+        console.log(userid)
+          iziToast.show({
+      theme: 'dark',
+      overlay: true,
+      zindex:999,
+      icon: 'icon-person',
+      title: 'Event',
+      message: 'Do u want to Attend Event <b>"'+eventTitle+'"!</b>',
+      position: 'center', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter
+      // progressBarColor: 'rgb(0, 255, 184)',
+      // image:'static/images/faces/face5.jpg',
+      transitionIn:'bounceInDown',
+      // color:'red',
+      timeout:false,
+      buttons: [
+          ['<button>Yess</button>', function (instance, toast) {
+  
+  
+          $.ajax({
+              url: '/attend_event/',
+              method: 'POST',
+              data: {
+                  eventuser : eventId,
+                  userId:userid,
+                  eventtitle:eventTitle
+              },
+              dataType: 'json',
+              success: function(response) {
+                iziToast.show({
+                                      title: 'Event',
+                                      message: 'Wellcome to Event : <b>'+eventTitle+'</b>',
+                                      color: 'green'});
+                                      location.reload();
+              },error: function(xhr, status, error) {
+                  console.error('Error updating task:', error);
+                  iziToast.show({
+                                      title: 'Error',
+                                      message: 'Something error',
+                                      color: 'red'});
+              }
+        });
+        instance.hide({
+                  transitionOut: 'fadeOutUp',
+                  onClosing: function(instance, toast, closedBy){
+                      console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
+                  }
+              }, toast, 'buttonName');
+              
+        }, true],['<button>No</button>', function (instance, toast) {
+              instance.hide({
+                  transitionOut: 'fadeOutUp',
+                  onClosing: function(instance, toast, closedBy){
+                      console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
+                  }
+              }, toast, 'buttonName');
+          }]
+      ],
+      onOpening: function(instance, toast){
+          
+      },
+      onClosing: function(instance, toast, closedBy){
+          console.info('closedBy: ' + closedBy); // tells if it was closed by 'drag' or 'button'
+      }
+  });
+    }
+        
+  </script>
+{% endif %}
+{% endblock %}

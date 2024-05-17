@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+    {% if message.tags == "error" %}
+
+        <script>
+          console.log('{{message}}')
+              iziToast.show({
+                                title: 'Error',
+                                message: '{{ message }}',
+                                color: 'red',
+                                position	:'bottomRight'
+                              })
+                                
+                      
+            </script>
+    {% else %}
+
+    <script>
+        console.log('{{message}}')
+            iziToast.show({
+                              title: 'Success!',
+                              message: '{{ message }}',
+                              theme: 'dark',
+                              position	:'bottomRight'
+                            })
+                              
+                    
+          </script>
+
+    {% endif %}
+    {% endfor %}           
+{% endif %}
+ <div class="row">
+    <div class="col-3 " style="border-right: 1px solid black;">
+        <!-- <div class="card-p" style="height: 300px; border-radius: 50px;">
+            
+                <img id="profile_image_edit" class="para " {% if user.profile_image %}  src="{{ user.profile_image.url }}" {% else %} src ="" {% endif %}>
+                {% if not request.user.socialaccount_set.all %}
+            <div class="overlay"></div>
+            
+            <input type="file" class="form-control card-btn" id="profile_file" name="profile_pic" accept="image/*" >
+            {% endif %}
+          </div> -->
+        
+        
+        {% if request.user.socialaccount_set.all %}
+            {% with social_account=request.user.socialaccount_set.all.0 %}
+                {% if social_account.provider == 'google' %} 
+                <img id="profile_image_edit" class="rounded-circle w-75 card"  src="{{ social_account.extra_data.picture }}">
+                {% endif %}
+                {% endwith %}
+                {% else %}
+                <img id="profile_image_edit" class="rounded-circle w-75 card" {% if user.profile_image %}  src="{{ user.profile_image.url }}" {% else %} src ="" {% endif %}>
+                {% endif %}
+        <div class="ms-2 mt-4">
+            <h2 class="ms-4">{{user.first_name}} {{user.last_name}}</h2>
+            <p class="ms-4">{{user.email}}</p>
+        </div>
+    </div>
+    <div class="col-lg-9">
+        <form action="{% url 'profile_edit' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+        <div class="row ms-5 mt-3 w-75">
+            <div class="col">
+                <div class="form-floating card">
+                    <input type="text" class="form-control" placeholder="First Name" id="fisrt_name_p" name="first_name_profile" style="border: none;" value="{{ user.first_name}}" required>
+                    <label for="fisrt_name_p" >First Name </label>
+                </div>
+
+                <div class="form-floating card mt-4">
+                    <input type="text" class="form-control" placeholder="Last Name" id="last_name_p" name="last_name_profile" style="border: none;" value="{{ user.last_name }}" required>
+                    <label for="last_name_p" >Last Name </label>
+                </div>
+
+                <div class="form-floating card mt-4">
+                    <input type="text" class="form-control" placeholder="User Name" id="user_name_p" name="user_name_profile" style="border: none;" value="{{ user.username }}" required>
+                    <label for="user_name_p" >UserName </label>
+                </div>
+                {% if not request.user.socialaccount_set.all %}
+                <div class="mt-3">
+                <input type="checkbox" class="btn btn-outline-primary mt-2" id="check_pic_id" name="check_pic">Remove Profile
+                </div>
+                {% endif %}
+            </div>
+            <div class="col ms-5 overflow-x-visible">
+                <div class="form-floating card">
+                    <input type="email" class="form-control" placeholder="Email" id="email_p" name="email_profile" style="border: none;" value="{{ user.email }}" required>
+                    <label for="email_p" >Email </label>
+                </div>
+
+                <div class="form-floating card mt-4">
+                    <input type="number" class="form-control" placeholder="Phone No." id="Phone_p" name="phone_profile" style="border: none;" value="{{ user.phone_number }}" >
+                    <label for="Phone_p" >Phone No.</label>
+                </div>
+                {% if not request.user.socialaccount_set.all %}
+                <div class="row card mt-4 mb-4">
+                    <div class="input-group mb-2 col-auto">
+                      <!-- <label class="input-group-text mt-2" for="inputGroupFile01" style="border: none;">Profile Pic</label> -->
+                      <input type="file" class="form-control mt-2" id="profile_file" name="profile_pic" accept="image/*" >
+                    </div>
+                </div>
+                
+                
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#password">
+                    Change Password
+                  </button>
+                {% endif %}
+               
+            </div>
+        </div>
+        <button type="submit" class="btn btn-outline-primary mt-4" >Save</button>
+        </form>
+
+    </div>
+ </div>
+
+ <div class="modal fade" id="password" aria-hidden="true" aria-labelledby="passwordLabel" tabindex="-1">
+    <div class="modal-dialog ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="passwordLabel">Password</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" action="{% url 'password_page' %}">
+                {% csrf_token %}
+                <p>Enter Current Password</p>
+                <input type="password" id="inputPassword6" placeholder="Enter Password" class="form-control" aria-describedby="passwordHelpInline" name="Current_password">
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-outline-primary" >Next</button></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+ <script>
+    var pathPic =''
+    $('#profile_file').change(function(){
+      // Get the file object
+      console.log('attr',$('#profile_image_edit').attr('src'))
+        var file = $(this).prop('files')[0];
+        
+        // You can now do whatever you want with the file object
+        console.log("File name: " + file.name);
+        console.log("File size: " + file.size + " bytes");
+        console.log("File type: " + file.type);
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            $('#profile_image_edit').attr('src', e.target.result);
+            pathPic = e.target.result
+        }
+        
+        console.log('oathPic',pathPic)
+        reader.readAsDataURL(file);
+            });
+    $('#check_pic_id').change(function(){
+      // Get the file object
+      {% if not request.user.socialaccount_set.all  %}
+      if ($(this).is(':checked')){
+        $('#profile_image_edit').attr('src', '');
+        console.log($('#profile_image_edit').attr('src'))
+        }else{
+            {% if user.profile_image %}
+            var path = 'media/{{ user.profile_image }}'
+            {% else %}
+            var path = pathPic
+            {% endif %}
+            if (path != ''){
+
+            $('#profile_image_edit').attr('src', path);
+
+            }
+
+        }
+
+        {% endif %}
+            });
+ </script>
+{% endblock %}

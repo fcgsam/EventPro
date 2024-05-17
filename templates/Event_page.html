@@ -1,0 +1,651 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %} 
+
+
+{% for event in events %}
+{% if event.id in past_event %}
+
+
+{% else %}
+        
+{% endif %}
+{% endfor %}
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == "success" %}
+
+            <script>
+              console.log('{{user.profile_image}}')
+                  iziToast.show({
+                                    title: 'Event !',
+                                    message: '{{ message|safe }}',
+                                    theme: 'dark',
+                                    
+                                  })
+                </script>
+
+        {% elif message.tags == "error"%}
+        <script>
+          console.log('{{user.profile_image}}')
+              iziToast.show({
+                                title: 'Error!',
+                                message: '{{ message|safe }}',
+                                color: 'red', 
+                              })
+                                
+                      
+            </script>
+        {% endif %}
+        {% endfor %}
+{% endif %}
+
+
+
+<div class="col-lg-12 grid-margin stretch-card">
+  <div class="card">
+    <div class="card-body overflow-x-auto">
+
+      <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        create Event
+      </button>
+      <h4 class="card-title">Event Table</h4>
+      <!-- <div class="table-responsive"> -->
+        <table class="display table table-hover" id="EventTable">
+          <thead>
+            <tr >
+              <th>Title</th>
+              <th>Description</th>
+              <th>venue</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Budget</th>
+              <th>Status</th>
+              <th>Manegd by</th>
+              <th>Attendee</th>
+              <th>Created By</th>
+              <th>Edit</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for event in events %}
+            {% if event.id in past_event %}
+            <tr style="background-color: gray;" class="event_id" data-id="{{ event.id }}" data-title="{{ event.title }}" data-email="{{ event.manager_email }}" data-name="{{ event.managed_by }}" data-budget="{{ event.Budget }}">
+            {% else %}
+            <tr class="event_id" data-id="{{ event.id }}" data-title="{{ event.title }}" data-email="{{ event.manager_email }}" data-name="{{ event.managed_by }}" data-budget="{{ event.Budget }}">
+            {% endif %}
+              <td  title="TRY TITLE">{{ event.title }}</td>
+              <td>{{ event.description }}</td>
+              <td>{{ event.venue }}</td>
+              <td>{{ event.date }}</td>
+              <td>{{ event.time }}</td>
+              {% for key, value in summs.items %}
+              {% if key == event.id %}
+              {% if value > event.Budget %}
+              <td style="color: red;">{{ value }}/ {{ event.Budget }}</td>
+              {% else %}
+              <td>{{ value }}/ {{ event.Budget }}</td>
+              {% endif %}
+              {% endif %}
+              {% endfor %}
+              {% if event.status == 'Completed'%}
+              <td><span class="badge bg-success-subtle text-success-emphasis rounded-pill">Completed</span></td>
+              {% elif event.status == 'Pending' %}
+              <td><span class="badge bg-danger-subtle text-danger-emphasis rounded-pill">Pending</span></td>
+              {% elif event.status == 'Ongoing' %}
+              <td><span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill">Ongoing</span></td>
+              {% endif %}
+
+              {% for info_pic in info %}
+                {% if info_pic.email == event.manager_email %}
+                  <td data-email="{{ info_pic.email }}" data-first_name="{{ info_pic.first_name }}" data-pic = "media/{{ info_pic.profile_image }} "><span class="badge d-flex align-items-center p-1 pe-2 text-dark-emphasis bg-dark-subtle border border-dark-subtle rounded-pill">
+                          <img class="rounded-circle me-1" src="media/{{ info_pic.profile_image }}" alt="">{{ info_pic.first_name }} | {{ info_pic.email }}
+                      </span>
+                  </td>
+                {% endif %}
+              {% endfor %}
+              <td>{{ event.Attendee }}</td>
+              {% for info_pic in info %}
+                {% if info_pic.email == event.created_by %}
+                  <td data-email="{{ info_pic.email }}" data-first_name="{{ info_pic.first_name }}" data-pic = "media/{{ info_pic.profile_image }} "><span class="badge d-flex align-items-center p-1 pe-2 text-dark-emphasis bg-dark-subtle border border-dark-subtle rounded-pill">
+                          <img class="rounded-circle me-1" src="media/{{ info_pic.profile_image }}" alt="">{{ info_pic.first_name }} | {{ info_pic.email }}
+                      </span>
+                  </td>
+                {% endif %}
+              {% endfor %}
+              <td>
+                {% if not event.id in past_event %}
+                <button type="button" class="btn btn-outline-primary border-0 btn-xs dt-edit" style="margin-right: 16px; padding: 0; width: 26px; height: 26px; display: inline-flex; justify-content: center; align-items: center;" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+                  <i class="mdi mdi-pencil menu-icon icon-xl"></i>
+              </button>
+                {%else%}
+                <button type="button"  style="margin-right: 13px; padding-right: 25px; background-color: white; border: none; cursor: default;" ></button>
+                {% endif %}
+                <button type="button" class="btn btn-outline-danger border-0 btn-xs dt-delete" style="margin-right: 16px; padding: 0; width: 26px; height: 26px; display: inline-flex; justify-content: center; align-items: center;" onclick="DeleteEvent('{{event.id}}','{{ event.title }}')">
+                <i class="mdi mdi-delete-outline icon-xl"></i>
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-xs dt-edit" data-bs-toggle="modal" data-bs-target="#show_task" onclick="EventTask('{{ event.id }}','{{ event.Budget}}')">
+                  Task
+                  </button>
+              </td>
+              
+            </tr>
+            <input type="hidden" id="event_id" value="{{ event.id }}">
+            {% endfor %}
+            <!-- href="{% url 'delete_event' %}?edit_id_value={{ event.id }}" -->
+          </tbody>
+        </table>
+      <!-- </div> -->
+      <div class="modal fade" id="show_task" tabindex="-1" aria-labelledby="exampleModalLabel"  >
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">New Task for <span value="" class="new_task_title"></span></h1>
+              <h4>Total Amount utilized for this Event : <span id="totla_amount_admin"></span></h4>
+              <a href="{% url 'Event-page' %}"><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></a>
+            </div>
+            <div class="modal-body">
+              <div class="list-wrapper">
+                <!-- <form method="post" action="{% url 'new_task' %}">
+                  {% csrf_token %} -->
+                
+                  <!-- <input type="hidden" value="" id="new_task_id" name="new_task_event_id">
+                  <input type="hidden" value="" id="new_task_email" name="new_task_event_email">
+                  <input type="hidden" value="" id="event_status" name="event_status_name">
+                  <input type="hidden" value="" id="event_budget" name="event_budget_name"> -->
+                  <div class="row w-50" id="statusAndamountAdmin">
+                    <!-- <div class="form-check form-switch ms-5 col">
+                      <input class="form-check-input" type="checkbox" role="switch" id="completedInput">
+                      <label class="form-check-label ms-1" for="completedInput"><b>Done</b> <small>(Turn On if All Tasks are Done)</small></label>
+                    </div> -->
+                    
+                  </div>
+                  <!-- <div class="row w-50">
+                  <div class="form-floating mb-3 col-lg-4">
+                    <input type="text" class="form-control" id="floatingInputTt" placeholder="Titel" name="title_task">
+                    <label for="floatingInputTt" class="ms-2">Title</label>
+                  </div>
+                  <div class="form-floating mb-3 col-lg-4">
+                    <input type="number" class="form-control" id="floatingInputTBuget" placeholder="Titel" min="1" name="budget_task">
+                    <label for="floatingInputTBuget" class="ms-2">Budget</label>
+                  </div>
+                  <button type="button" class="btn btn-outline-primary col-sm-2" onclick="addtask()">Create</button>
+                  </div> -->
+                  <table class="table table-hover" id="NewTakAdmin">
+                    <thead>
+                      <tr >
+                        <th>Title</th>
+                        <th>Budget</th>
+                        
+                      </tr>
+                    </thead>
+                    <tbody>
+                      
+                    </tbody>
+                  </table>
+                  <!-- script for adding task in table ===================== -->
+                  <script>
+                    
+  
+                    function EventTask(eventId,budgetEvent){
+                      $.ajax({
+                url: '/task_table/',
+                method: 'POST',
+                data:{
+                  event_id: eventId,
+              },
+                dataType: 'json',
+                success: function(response) {
+                  let task = response.task
+                  let total_sum = response.total_sum
+                  console.log("total sukmmmm ",total_sum)
+                  // if(total_sum<1){
+                  $('#totla_amount_admin').text(total_sum)
+
+                  if(budgetEvent < total_sum){
+                    console.log("If part of this red mark")
+                    if (!$('#ammount_mssg_Admin').length) {
+                    $('#statusAndamountAdmin').append('<p class="card col d-flex justify-content-cente"  style="background-color: red;"  id="ammount_mssg_Admin">Exceeded the allocated amount!</p>');
+                    }
+                  }else{
+                    console.log('else part for this matrt')
+                    $('#ammount_mssg_Admin').remove();
+                  }
+                  $('#NewTak tbody').empty();
+                  $('#taskTable tbody').empty();
+                  for (var i = 0; i < task.length; i++) {
+                    
+                      if(eventId == task[i].Event_id ){    
+                        console.log('bububububuAdmin =',task[i].Budget)
+                        var newRow = $('<tr id="budg-'+task[i].id+'" data-id="'+task[i].id+'" data-title="'+task[i].title+'" data-budget="'+task[i].Budget+'"" >');
+                        newRow.append($('<td>').text(task[i].title));
+                        newRow.append($('<td>').text(task[i].Budget));
+                        $('#NewTakAdmin tbody').append(newRow);
+                    } 
+               
+                  }
+                  if ($.fn.DataTable.isDataTable('#NewTakAdmin')) {
+                    $('#EventTable').DataTable().draw();
+                    
+                  } else {
+                    $('#NewTakAdmin').DataTable({
+                      language: { search: '<i class="icon-search"></i>', searchPlaceholder: "Search..." },
+                    });
+                  }
+                },
+                error: function() {
+                  console.error('Error fetching data from /NewTakAdmin/');
+                }
+              });
+                    }
+                  </script>
+                  <!-- end script=========================================== -->
+                  <!-- <button type="submit" class="btn btn-outline-primary">Save</button> -->
+                </form>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <a href="{% url 'Event-page' %}"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+          <div class="modal-content">
+           
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">New Event</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="list-wrapper">
+                
+                <form method="POST" action="{% url 'create_event' %}">
+                  {% csrf_token %}
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="floatingInput" placeholder="Titel" name="title">
+                  <label for="floatingInput">Title</label>
+                </div>
+
+                <div class="form-floating">
+                  <textarea class="form-control" placeholder="Discription" id="floatingTextarea2" style="height: 100px" name="discription"></textarea>
+                  <label for="floatingTextarea2">Description</label>
+                </div><br>
+
+                <div class="form-floating">
+                  <textarea class="form-control" placeholder="Vanue" id="floatingTextarea3" style="height: 100px" name="venue"></textarea>
+                  <label for="floatingTextarea3">Venue</label>
+                </div></br>
+                
+                <div id="date-picker-example" class="md-form md-outline input-with-post-icon datepicker" inline="true">
+                  <label for="example_id">Date</label>
+                  <input placeholder="Select date" type="date" id="example_id" class="form-control" name="date">
+                  
+                  <i class="fas fa-calendar input-prefix"></i>
+                </div>
+
+                <label for="appt">Time:</label>
+                <input type="time" id="appt"  class="form-control" name="time"></br>
+
+                <div class="form-floating mb-3">
+                  <input type="number" class="form-control" id="floatingInputBuget" placeholder="Titel" min="1" name="budget">
+                  <label for="floatingInputBuget">Budget</label>
+                </div>
+                <div class="form-group card">
+                  <span class="badge d-flex align-items-center p-1 pe-2 text-dark-emphasis bg-light-subtle border border-dark-subtle rounded-pill" id="imgspan">
+                    
+                  </span>
+                </div>
+                <input type="hidden" id="floatingInputassign" name="assgin_to" value="">
+                <input type="hidden" id="assgin_to_email" name="assign_to_email_name" value="">
+
+                <button type="button" class="btn btn-outline-primary w-25" data-bs-toggle="dropdown" aria-expanded="false" id="UserDropdown_e">Assign to</button><br><br>
+
+                <div class="dropdown-menu dropdown-menu-right navbar-dropdown overflow-auto" aria-labelledby="UserDropdown_e" style="height: 300px; width: 330px;">
+                  <!-- <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My -->
+                    <!-- <input type="text" id="myInput" onkeyup="TableFunction()" placeholder="Search for names.."> -->
+                    <div class="form-floating card ms-2 " style="width: 300px; border-radius: 20px; ">
+                      <input type="text" class="form-control mb-1 border border-0" placeholder="Search" id="Search_user_id"  style=" width: 280px; margin-left: 9px;" onkeyup="TableFunction()" title="">
+                      <label for="Search_user_id" >Search </label>
+                    </div>
+                
+                    <table class="ms-3 " id="user_search_table" style="font-size: 14px;width: 300px;">
+                        {% for user_info in info %}
+                        {% if user_info.is_staff and not user_info.is_superuser %}
+                        <!-- {% if user_info.profile_image %} -->
+                        <tr title="{{ user_info.first_name }} | {{ user_info.email }}" style="cursor :pointer;" data-pic="{{ user_info.profile_image }}">
+                          <td><img class="img-xs rounded-circle" src="media/{{ user_info.profile_image }}" alt="Profile image"> </a></td>
+                            <td><b>{{ user_info.first_name}}</b></td>
+                            <td><b>{{ user_info.email }}</b></td>
+                        </tr>
+                        <!-- {% endif %} -->
+                        {% endif %}
+                        {% endfor %}
+                    </table>
+                    </div>
+                <button type="submit" class="btn btn-outline-primary">Save</button>
+              </form>
+            </div>
+          
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              
+            </div>
+            <!-- </form> -->
+          </div>
+        </div>
+      </div>
+
+
+      <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+          <div class="modal-content">
+           
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Event</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="list-wrapper" >
+                <form method="POST" action="{% url 'update_event' %}" id="Edit_model_event">
+                  {% csrf_token %}
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control floating-input-title" id="floatingInputTitle" placeholder="Titel" name="edit_title">
+                  <label for="floatingInputTitle">Title</label>
+                </div>
+
+                <div class="form-floating">
+                  <textarea class="form-control" placeholder="Discription" id="Description_id" style="height: 100px" name="edit_discription"></textarea>
+                  <label for="Description_id">Description</label>
+                </div><br>
+
+                <div class="form-floating">
+                  <textarea class="form-control" placeholder="Vanue" id="floatingTextareavenue" style="height: 100px" name="edit_venue"></textarea>
+                  <label for="floatingTextarea_venue">Venue</label>
+                </div></br>
+                
+                <div id="date-picker-example" class="md-form md-outline input-with-post-icon datepicker" inline="true">
+                  <label for="edit_date">Date</label>
+                  <input placeholder="Select date" type="date" id="edit_date" class="form-control" name="edit_date">
+                  
+                  <i class="fas fa-calendar input-prefix"></i>
+                </div>
+
+
+
+                <label for="appt">Time:</label>
+                <input type="time" id="edit_time"  class="form-control" name="edit_time"></br>
+
+                <div class="form-floating mb-3">
+                  <input type="number" class="form-control floating-input-budget" id="floatingInputBudget" placeholder="Titel" min="1" name="edit_budget">
+                  <label for="floatingInputBudget">Budget</label>
+                </div>
+
+
+                <div class="form-group card">
+                  <span class="badge d-flex align-items-center p-1 pe-2 text-dark-emphasis bg-light-subtle border border-dark-subtle rounded-pill" id="imgspan_editEvent">
+                    
+                  </span>
+                </div>
+                <input type="hidden" id="edit_event_name_id" name="edit_assgin_to" value="">
+                <input type="hidden" id="edit_assgin_to_email" name="edit_assign_to_email_name" value="">
+                <input type="hidden" id="id_of_event" name="id_of_event_name" value="">
+
+                <button type="button" class="btn btn-outline-primary w-25" data-bs-toggle="dropdown" aria-expanded="false" id="UserDropdown">Assign to</button><br><br>
+                
+                <div class="dropdown-menu dropdown-menu-right navbar-dropdown overflow-auto" aria-labelledby="UserDropdown" style="height: 300px; width: 330px;">
+                  <!-- <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My -->
+                    <!-- <input type="text" id="myInput" onkeyup="TableFunction()" placeholder="Search for names.."> -->
+                    <div class="form-floating card ms-2 " style="width: 300px; border-radius: 20px; ">
+                      <input type="text" class="form-control mb-1 border border-0" placeholder="Search" id="Search_user_id"  style=" width: 280px; margin-left: 9px;" onkeyup="TableFunction()" title="">
+                      <label for="Search_user_id" >Search </label>
+                    </div>
+                
+                    <table class="ms-3 " id="edit_user_search_table" style="font-size: 14px;width: 300px;">
+                        {% for user_info in info %}
+                        {% if user_info.is_staff and not user_info.is_superuser %}
+                        <!-- {% if user_info.profile_image %} -->
+                        <tr title="{{ user_info.first_name }} | {{ user_info.email }}" style="cursor :pointer;" data-pic="{{ user_info.profile_image }}">
+                          <td><img class="img-xs rounded-circle" src="media/{{ user_info.profile_image }}" alt="Profile image"> </a></td>
+                            <td><b>{{ user_info.first_name}}</b></td>
+                            <td><b>{{ user_info.email }}</b></td>
+                        </tr>
+                        <!-- {% endif %} -->
+                        {% endif %}
+                        {% endfor %}
+                    </table>
+                    </div><br>
+                <div class="form-floating">
+                  <select class="form-select" id="Status_edit" aria-label="Floating label select example" name="Status_edit">
+                    <!-- <option selected>Open this select menu</option> -->
+                    <option>Pending</option>
+                    <option>Ongoing</option>
+                    <option>Completed</option>
+                  </select>
+                  <label for="Status_edit">Status</label>
+                </div><br>
+
+                <div class="form-floating mb-3">
+                  <input type="number" class="form-control" id="floatingInputAttendee" placeholder="Titel" min="0" name="edit_attendee">
+                  <label for="floatingInputAttendee">Attendee</label>
+                </div>
+                <input type="hidden" value="" name="edit_id_value" id="edit_id_input">
+                <button type="submit" class="btn btn-outline-primary" >Save</button>
+                </form>
+            </div>
+          
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              
+            </div>
+            <!-- </form> -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ======confermin model ======== -->
+      <!-- <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body" id="delete_popup" value="">
+              <form method="POST" action="{% url 'delete_event' %}">
+                {% csrf_token %}
+                <p>Are you sure you want to Delete '<span class="spain_class"></span>'?</p>
+                
+                <input type="hidden" name="deleting_id" id="popup_delete" value=""><br><br>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">no</button>
+                <button type="submit" class="btn btn-outline-primary" data-bs-dismiss="modal" id="confirmYes">Yes</button>
+              </form>
+            </div>
+        </div>
+      </div> -->
+      
+      <!-- end conforming model============== -->
+      
+    </div>
+
+    <!-- tast tabe views=========== -->
+    
+    
+    <!-- <div class="modal fade" id="NewTask" tabindex="-1" aria-labelledby="exampleModalLabel"  >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">New Task</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="list-wrapper">
+              
+                
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="floatingInputTt" placeholder="Titel" name="title_task">
+                  <label for="floatingInputTt">Title</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <input type="number" class="form-control" id="floatingInputTBuget" placeholder="Titel" min="1" name="budget_task">
+                  <label for="floatingInputTBuget">Budget</label>
+                </div>
+                <input type="text">
+                <button type="submit" class="btn btn-outline-primary">Save</button>
+              </form>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div> -->
+    
+    <!-- end task table============== -->
+  </div>
+</div>
+<script>
+  function DeleteEvent(eventId,EventTask){
+    iziToast.show({
+    // theme: 'dark',
+    overlay: true,
+    zindex:999,
+    icon: 'icon-person',
+    title: 'Delete',
+    message: 'Do u want to delete Event <b>"'+EventTask+'"!</b>',
+    position: 'center', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter
+    // progressBarColor: 'rgb(0, 255, 184)',
+    // image:'static/images/faces/face5.jpg',
+    transitionIn:'bounceInDown',
+    color:'red',
+    timeout:false,
+    buttons: [
+        ['<button>Yess</button>', function (instance, toast) {
+
+            $.ajax({
+                url: '/delete_event/',
+                method: 'POST',
+                data:{
+                  event_id: eventId,
+              },
+                dataType: 'json',
+                success: function(response) {
+                  instance.hide({
+                      transitionOut: 'fadeOutUp',
+                      onClosing: function(instance, toast, closedBy){
+                          console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
+                      }
+                  }, toast, 'buttonName');
+                  location.reload(true)
+                },error: function(xhr, status, error) {
+                        console.error('Error adding task:', error);
+                    }
+                });
+        }, true], // true to focus
+        ['<button>No</button>', function (instance, toast) {
+            instance.hide({
+                transitionOut: 'fadeOutUp',
+                onClosing: function(instance, toast, closedBy){
+                    console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
+                }
+            }, toast, 'buttonName');
+        }]
+    ],
+    onOpening: function(instance, toast){
+        console.info(evetId);
+    },
+    onClosing: function(instance, toast, closedBy){
+        console.info('closedBy: ' + closedBy); // tells if it was closed by 'drag' or 'button'
+    }
+});
+  }
+  
+  function TableFunction() {
+      const input = document.getElementById("Search_user_id");
+      const filter = input.value.toUpperCase();
+      const table = document.getElementById("user_search_table");
+      const rows = table.getElementsByTagName("tr");
+
+      for (let i = 0; i < rows.length; i++) {
+          const td = rows[i].getElementsByTagName("td")[1];
+          const td2= rows[i].getElementsByTagName("td")[2];
+          if (td,td2) {
+              const txtValue = td.textContent || td.innerText;
+              const txtValue2 = td2.textContent || td2.innerText;
+              if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) {
+                  rows[i].style.display = "";
+              } else {
+                  rows[i].style.display = "none";
+              }
+          }
+      }
+  }
+  const tableRows = document.querySelectorAll("#user_search_table tr");
+  tableRows.forEach(row => {
+      row.addEventListener("click", () => {
+          const name_edit = row.cells[1].textContent;
+          const email_edit = row.cells[2].textContent;
+          const profile_image_edit = "media/"+row.getAttribute('data-pic')
+          console.log('Clicked! Email:', 'media/'+profile_image_edit);
+          var val = document.getElementById('floatingInputassign').value = name_edit
+          // var val = document.getElementById('floatingInputassign_ui').value = name_edit
+          const img = $('<img>', {
+          src: profile_image_edit, // Replace with your actual image URL
+          alt: 'profile Img',
+          class: 'rounded-circle me-1',
+          width: 24, 
+          height: 24
+        });
+
+        // Append the image element to the span
+        $('#imgspan').empty();
+        $('#imgspan').append(img,name_edit," | ",email_edit);
+        // $('#imgspan').text(name)
+          // console.log('176 == ',val)
+          document.getElementById('assgin_to_email').value = email_edit
+          document.getElementById('assgin_to_email').value = email_edit
+          // console.log(row.cells[1].textContent)
+          // document.getElementById('floatingInputassign_ui').setAttribute('title',email)
+
+      });
+  });
+
+
+  const tableRowsedit = document.querySelectorAll("#edit_user_search_table tr");
+  tableRowsedit.forEach(row => {
+      row.addEventListener("click", () => {
+          const name = row.cells[1].textContent;
+          const email = row.cells[2].textContent;
+          const profile_image = "media/"+row.getAttribute('data-pic')
+          console.log('Clicked! Email:', 'media/'+profile_image);
+          var val = document.getElementById('floatingInputassign').value = name
+          // var val = document.getElementById('floatingInputassign_ui').value = name
+          const img = $('<img>', {
+          src: profile_image, // Replace with your actual image URL
+          alt: 'profile Img',
+          class: 'rounded-circle me-1',
+          width: 24, 
+          height: 24
+        });
+
+        // Append the image element to the span
+        $('#imgspan_editEvent').empty();
+        $('#imgspan_editEvent').append(img,name," | ",email);
+        // $('#imgspan').text(name)
+          // console.log('176 == ',val)
+          document.getElementById('edit_assgin_to_email').value = email
+          document.getElementById('edit_event_name_id').value = name
+          // document.getElementById('edit_event_name_id').value = 
+          // console.log(row.cells[1].textContent)
+          // document.getElementById('floatingInputassign_ui').setAttribute('title',email)
+
+      });
+  });
+</script>
+
+ {% endblock %}

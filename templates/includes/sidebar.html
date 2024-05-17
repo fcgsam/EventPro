@@ -1,0 +1,89 @@
+{% load static %}
+
+
+<nav class="sidebar sidebar-offcanvas" id="sidebar">
+
+    <ul class="nav">
+      {% if user.is_superuser or user.is_staff %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'home' %}">
+          <i class="mdi mdi-grid-large menu-icon"></i>
+          <span class="menu-title">Dashboard</span>
+        </a>
+      </li>
+      <li class="nav-item nav-category">UI Elements</li>
+      {% if user.is_superuser or perms.eventapp.can_add_event %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'Event-page' %}">
+          <i class="mdi mdi-calendar-text-outline menu-icon"></i>
+          <span class="menu-title">Event</span>
+        </a>
+      </li>
+      {% endif %}
+      {% if not user.is_superuser or user.is_staff %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'Task-page' %}">
+          <i class="mdi mdi-ballot-outline menu-icon"></i>
+          <span class="menu-title">Task</span>
+        </a>
+      </li>
+      {% endif %}
+      {% if user.is_superuser or perms.userAcc.can_add_staff %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'account_page' %}">
+          <i class="mdi mdi-account-edit menu-icon"></i>
+          
+          <span class="menu-title">Account</span>
+        </a>
+      </li>
+      {% endif %}
+      {% if user.is_superuser or perms.userAcc.can_make_group %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'new_group' %}">
+          <i class="mdi mdi-group menu-icon"></i>
+          <span class="menu-title">Group</span>
+        </a>
+      </li>
+      {% endif %}
+      {% endif %}
+      {% if not user.is_staff and user.is_authenticated %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'Event_user' %}">
+          <i class="mdi mdi-calendar-text-outline menu-icon"></i>
+          
+          <span class="menu-title">Registerd</span>
+        </a>
+      </li>
+      {% endif %}
+      <li class="nav-item nav-category">Auth</li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
+          <i class="menu-icon mdi mdi-account-circle-outline"></i>
+          <span class="menu-title">User Pages</span>
+          <i class="menu-arrow"></i>
+        </a>
+        <div class="collapse" id="auth">
+          <ul class="nav flex-column sub-menu">
+            
+            {% if user.is_authenticated %}
+            <li class="nav-item"> <a class="nav-link" href="{% url 'logout' %}"> logout </a></li>
+            {% else %}
+            <li class="nav-item"> <a class="nav-link" href="{% url 'login_page' %}"> Login </a></li>
+            <li class="nav-item"> <a class="nav-link" href="{% url 'register_page' %}"> Register </a></li>
+            {% endif %}
+          </ul>
+          <!-- <ul class="nav flex-column sub-menu">
+            
+          </ul> -->
+        </div>
+      </li>
+      <!-- <li class="nav-item nav-category">help</li>
+      <li class="nav-item">
+        <a class="nav-link" href="http://bootstrapdash.com/demo/star-admin2-free/docs/documentation.html">
+          <i class="menu-icon mdi mdi-file-document"></i>
+          <span class="menu-title">Documentation</span>
+        </a>
+      </li> -->
+    </ul>
+    
+</nav>
