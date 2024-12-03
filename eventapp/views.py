@@ -15,7 +15,7 @@ from django.contrib import auth
 from django.contrib import auth, messages
 import re
 from django.core.files.storage import default_storage
-import imghdr
+# import imghdr
 from django.core.files.base import ContentFile
 from django.contrib.auth import authenticate,login
 from django.template import RequestContext
@@ -405,6 +405,7 @@ def Edit_account_admin(request,encoded_userId):
 def profile_edit_page(request):
     return render(request,'Profile_Edit.html')
 
+from PIL import Image
 def profile_edit(request):
     if request.method == "POST" and request.user.is_authenticated:
         try:
@@ -420,18 +421,33 @@ def profile_edit(request):
             print("check :",profile_pic)
 
             if profile_pic:
-
-                # if profile_pic:
-            # Define the path to save the profile picture (e.g., 'media/profile_pics/')
-                file_type = imghdr.what(profile_pic)
-                if file_type:
-                    path = default_storage.save('profile_pics/' + profile_pic.name, ContentFile(profile_pic.read()))
-                    CustomUser.objects.filter(id=request.user.id).update(first_name = first_name,last_name=last_name,username = user_name ,email = email_user, phone_number = phone_number ,profile_image = path)
-                    messages.success(request,"Profile has been edited successfully.")
-                    return redirect('home')
+                try:
+                    # Open the image using Pillow
+                    image = Image.open(profile_pic)
+                    image.verify()  # This checks if the file is a valid image
                     
-                else:
-                    messages.error(request, f"File Should be an image")
+                    # If it reaches here, it's a valid image file
+                    profile_pic.seek(0)  # Reset the file pointer after verification
+                    
+                    # Define the path to save the profile picture
+                    path = default_storage.save('profile_pics/' + profile_pic.name, ContentFile(profile_pic.read()))
+                    
+                    # Update the user's profile
+                    CustomUser.objects.filter(id=request.user.id).update(
+                        first_name=first_name,
+                        last_name=last_name,
+                        username=user_name,
+                        email=email_user,
+                        phone_number=phone_number,
+                        profile_image=path
+                    )
+                    
+                    messages.success(request, "Profile has been edited successfully.")
+                    return redirect('home')
+
+                except (IOError, SyntaxError):
+                    # If the file is not a valid image
+                    messages.error(request, "File should be an image.")
                     return redirect("home")
 
 

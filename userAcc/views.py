@@ -10,7 +10,7 @@ from django.contrib.auth.hashers import make_password
 from userAcc.models import CustomUser
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
-import imghdr
+# import imghdr
 import re
 
 def signin_view(request):
@@ -31,7 +31,7 @@ def signin_view(request):
             
     return render(request, "index.html")
 
-
+from PIL import Image
 def signup_view(request):
 
     if request.method == "POST":
@@ -71,13 +71,25 @@ def signup_view(request):
         # Save profile picture if provided
         profile_image_path = None
         if profile_pic:
-            # Define the path to save the profile picture (e.g., 'media/profile_pics/')
-            file_type = imghdr.what(profile_pic)
-            if file_type:
+            try:
+                # Open the image using Pillow
+                image = Image.open(profile_pic)
+                image.verify()  # Verify that the file is a valid image file
+                
+                # If the image is valid, reset the file pointer and save the image
+                profile_pic.seek(0)  # Reset the file pointer to the beginning
+                
+                # Define the path to save the profile picture (e.g., 'profile_pics/filename')
                 profile_image_path = default_storage.save('profile_pics/' + profile_pic.name, ContentFile(profile_pic.read()))
-            else:
-                messages.error(request, f"File Should be an image")
-                return redirect("register_page") 
+
+                # You can proceed with saving other information related to the user as needed
+                messages.success(request, "Profile image uploaded successfully.")
+                return redirect("home")
+
+            except (IOError, SyntaxError):
+                # If the file is not a valid image
+                messages.error(request, "File should be an image.")
+                return redirect("register_page")
 
         # Create a new CustomUser instance and save it to the database
         user = CustomUser.objects.create(
@@ -149,15 +161,25 @@ def Account_view(request):
             messages.error(request, f"Password required")
             return redirect("account_page")
         if profile_pic:
-            # Define the path to save the profile picture (e.g., 'media/profile_pics/')
-            file_type = imghdr.what(profile_pic)
-            if file_type:
-                path = default_storage.save('profile_pics/' + profile_pic.name, ContentFile(profile_pic.read()))
-                
-            else:
-                messages.error(request, f"File Should be an image")
-                return redirect("account_page")
+            try:
+                # Open the image using Pillow
+                image = Image.open(profile_pic)
+                image.verify()  # Verify that the file is a valid image
 
+                # If the image is valid, reset the file pointer and save the image
+                profile_pic.seek(0)  # Reset the file pointer to the beginning of the file
+                
+                # Define the path to save the profile picture (e.g., 'profile_pics/filename')
+                path = default_storage.save('profile_pics/' + profile_pic.name, ContentFile(profile_pic.read()))
+
+                messages.success(request, "Profile picture uploaded successfully.")
+                return redirect("home")
+
+            except (IOError, SyntaxError):
+                # If the file is not a valid image
+                messages.error(request, "The file should be an image.")
+                return redirect("account_page")
+                        
         # Create a new CustomUser instance and save it to the database
         user = CustomUser.objects.create(
             email=email,

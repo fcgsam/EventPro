@@ -54,6 +54,7 @@
         <table class="display table table-hover" id="EventTable">
           <thead>
             <tr >
+              <th></th>
               <th>Title</th>
               <th>Description</th>
               <th>venue</th>
@@ -64,16 +65,34 @@
               <th>Manegd by</th>
               <th>Attendee</th>
               <th>Created By</th>
-              <th>Edit</th>
+              <!-- <th>Edit</th> -->
             </tr>
           </thead>
           <tbody>
             {% for event in events %}
+            
             {% if event.id in past_event %}
             <tr style="background-color: gray;" class="event_id" data-id="{{ event.id }}" data-title="{{ event.title }}" data-email="{{ event.manager_email }}" data-name="{{ event.managed_by }}" data-budget="{{ event.Budget }}">
             {% else %}
             <tr class="event_id" data-id="{{ event.id }}" data-title="{{ event.title }}" data-email="{{ event.manager_email }}" data-name="{{ event.managed_by }}" data-budget="{{ event.Budget }}">
             {% endif %}
+            <td>
+
+              <button type="button" class="btn btn-outline-danger border-0 btn-xs dt-delete" style="margin-right: 16px; padding: 0; width: 26px; height: 26px; display: inline-flex; justify-content: center; align-items: center;" onclick="DeleteEvent('{{event.id}}','{{ event.title }}')">
+              <i class="mdi mdi-delete-outline icon-xl"></i>
+              </button>
+              <button type="button" class="btn btn-outline-primary btn-xs dt-edit" data-bs-toggle="modal" data-bs-target="#show_task" onclick="EventTask('{{ event.id }}','{{ event.Budget}}')">
+                Task
+                </button>
+
+                {% if not event.id in past_event %}
+                <button type="button" class="btn btn-outline-primary border-0 btn-xs dt-edit" style="margin-right: 16px; padding: 0; width: 26px; height: 26px; display: inline-flex; justify-content: center; align-items: center;" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+                  <i class="mdi mdi-pencil menu-icon icon-xl"></i>
+                </button>
+                {%else%}
+                <button type="button"  style="margin-right: 13px; padding-right: 25px; background-color: white; border: none; cursor: default;" ></button>
+                {% endif %}
+            </td>
               <td  title="TRY TITLE">{{ event.title }}</td>
               <td>{{ event.description }}</td>
               <td>{{ event.venue }}</td>
@@ -113,21 +132,7 @@
                   </td>
                 {% endif %}
               {% endfor %}
-              <td>
-                {% if not event.id in past_event %}
-                <button type="button" class="btn btn-outline-primary border-0 btn-xs dt-edit" style="margin-right: 16px; padding: 0; width: 26px; height: 26px; display: inline-flex; justify-content: center; align-items: center;" data-bs-toggle="modal" data-bs-target="#exampleModal2">
-                  <i class="mdi mdi-pencil menu-icon icon-xl"></i>
-              </button>
-                {%else%}
-                <button type="button"  style="margin-right: 13px; padding-right: 25px; background-color: white; border: none; cursor: default;" ></button>
-                {% endif %}
-                <button type="button" class="btn btn-outline-danger border-0 btn-xs dt-delete" style="margin-right: 16px; padding: 0; width: 26px; height: 26px; display: inline-flex; justify-content: center; align-items: center;" onclick="DeleteEvent('{{event.id}}','{{ event.title }}')">
-                <i class="mdi mdi-delete-outline icon-xl"></i>
-                </button>
-                <button type="button" class="btn btn-outline-primary btn-xs dt-edit" data-bs-toggle="modal" data-bs-target="#show_task" onclick="EventTask('{{ event.id }}','{{ event.Budget}}')">
-                  Task
-                  </button>
-              </td>
+              
               
             </tr>
             <input type="hidden" id="event_id" value="{{ event.id }}">
