@@ -25,7 +25,7 @@
 
   <tbody>
     {% for event in events %}
-    {% if user.email == event.manager_email %}
+    {% if user.email == event.manager_email or user.is_superuser%}
     
     <tr class="event_id" data-id="{{ event.id }}" data-title="{{ event.title }}" data-email="{{ event.manager_email }}" data-status="{{ event.status }}" data-budget="{{ event.Budget }}">
       <td  title="TRY TITLE">{{ event.title }}</td>
