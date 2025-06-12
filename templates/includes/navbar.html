@@ -1,22 +1,21 @@
 {% load static %}
 
 <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex align-items-top flex-row">
-    <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-      <div class="me-3">
-        <!-- <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-bs-toggle="minimize">
-          <span class="icon-menu"></span>
-        </button> -->
-      </div>
-      <div >
-        <a class="navbar-brand" href="{% url 'home' %}">
-          <!-- <img src="{% static 'images/logo.svg' %}" alt="logo" /> -->
-          <h2><b>Event <span style="color: black;">Pro</span></b></h2>
-        </a>
-        <a class="navbar-brand brand-logo-mini" href="{% url 'home' %}">
-          <!-- <img src="{% static 'images/logo-mini.svg' %}" alt="logo" /> -->
-          <h3>&nbsp;&nbsp;&nbsp;E</h3>
-        </a>
-      </div>
+   <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
+        <div class="me-3">
+            <!-- Optional navbar toggler button for mobile -->
+            <button class="navbar-toggler navbar-toggler align-self-center d-lg-none" type="button" data-bs-toggle="offcanvas">
+                <span class="mdi mdi-menu"></span>
+            </button>
+        </div>
+        <div>
+            <a class="navbar-brand d-none d-lg-block" href="{% url 'home' %}">
+                <h2 class="mb-0"><b>Event <span style="color: black;">Pro</span></b></h2>
+            </a>
+            <a class="navbar-brand d-lg-none" href="{% url 'home' %}">
+                <h4 class="mb-0"><b>E<span style="color: black;">P</span></b></h4>
+            </a>
+        </div>
     </div>
     <div class="navbar-menu-wrapper d-flex align-items-top">
       <ul class="navbar-nav">
@@ -84,7 +83,7 @@
         </li> -->
         {% if not user.is_staff %}
         
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <form class="search-form" action="{% url 'search_product' %}" method="post">
             {% csrf_token %}
             <i class="icon-search"></i>
@@ -92,7 +91,7 @@
           </form>
         </li>
         <a href="{% url 'home' %}" style="text-decoration: none;"><button class="nav-link count-indicator ms-3 btn btn-outline-primary border-0" style="width: 50px;">See All</button></a>
-        {% endif %}
+        {% endif %} -->
         <!-- <li class="nav-item dropdown">
           <a class="nav-link count-indicator" id="notificationDropdown" href="#" data-bs-toggle="dropdown">
             <i class="icon-bell"></i>
@@ -174,66 +173,57 @@
           </div>
         </li> -->
         {% if request.user.is_authenticated %}
-        {% if request.user.socialaccount_set.all %}
-            {% with social_account=request.user.socialaccount_set.all.0 %}
-                {% if social_account.provider == 'google' %} 
-        <li class="nav-item dropdown d-none d-lg-block user-dropdown">
+  {% if request.user.socialaccount_set.all %}
+    {% with social_account=request.user.socialaccount_set.all.0 %}
+      {% if social_account.provider == 'google' %}
+        <li class="nav-item dropdown user-dropdown">
           <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-            <img class="img-xs rounded-circle" src="{{ social_account.extra_data.picture }}" alt="Profile image"> </a>
+            <img class="img-xs rounded-circle" src="{{ social_account.extra_data.picture }}" alt="Profile image">
+          </a>
           <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
             <div class="dropdown-header text-center">
               <img class="img-md rounded-circle" src="{{ social_account.extra_data.picture }}" alt="Profile image">
               <p class="mb-1 mt-3 font-weight-semibold">{{ request.user.first_name }} {{ request.user.last_name }}</p>
               <p class="fw-light text-muted mb-0">{{ request.user }}</p>
             </div>
-            <a class="dropdown-item" href="{% url 'profile_edit_page' %}"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My
-              Profile <span class="badge badge-pill badge-danger">1</span></a>            
-            <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-message-text-outline text-primary me-2"></i>
-              Messages</a>
-            <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-calendar-check-outline text-primary me-2"></i>
-              Activity</a>
-            <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-help-circle-outline text-primary me-2"></i>
-              FAQ</a>
+            <a class="dropdown-item" href="{% url 'profile_edit_page' %}"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My Profile <span class="badge badge-pill badge-danger">1</span></a>
+            <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-message-text-outline text-primary me-2"></i> Messages</a>
+            <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-calendar-check-outline text-primary me-2"></i> Activity</a>
+            <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-help-circle-outline text-primary me-2"></i> FAQ</a>
             <a class="dropdown-item" href="{% url 'logout' %}"><i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>Sign Out</a>
           </div>
         </li>
-      </ul>
       {% endif %}
-      {% endwith %}
-      {% else %}
-      
-      <li class="nav-item dropdown d-none d-lg-block user-dropdown">
-        <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+    {% endwith %}
+  {% else %}
+    <li class="nav-item dropdown user-dropdown">
+      <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+        {% if user.profile_image != '' %}
+          <img class="img-xs rounded-circle" src="{{ user.profile_image.url }}" alt="Profile image">
+        {% else %}
+          <i class="mdi mdi-account-circle menu-icon"></i>
+        {% endif %}
+      </a>
+      <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+        <div class="dropdown-header text-center">
           {% if user.profile_image != '' %}
-          <img class="img-xs rounded-circle" src="{{ user.profile_image.url }}" alt="Profile image"> </a>
+            <img class="img-md rounded-circle" src="{{ user.profile_image.url }}" alt="Profile image">
           {% else %}
             <i class="mdi mdi-account-circle menu-icon"></i>
           {% endif %}
-        <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
-          <div class="dropdown-header text-center">
-            {% if user.profile_image != '' %}
-            <img class="img-md rounded-circle" src="{{ user.profile_image.url }}" alt="Profile image">
-            {% else %}
-            <i class="mdi mdi-account-circle menu-icon"></i>
-            {% endif %}
-            <p class="mb-1 mt-3 font-weight-semibold">{{ request.user.first_name }} {{ request.user.last_name }}</p>
-            <p class="fw-light text-muted mb-0">{{ request.user }}</p>
-          </div>
-
-          <a class="dropdown-item" href="{% url 'profile_edit_page' %}"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My
-            Profile <span class="badge badge-pill badge-danger">1</span></a>
-          <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-message-text-outline text-primary me-2"></i>
-            Messages</a>
-          <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-calendar-check-outline text-primary me-2"></i>
-            Activity</a>
-          <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-help-circle-outline text-primary me-2"></i>
-            FAQ</a>
-          <a class="dropdown-item" href="{% url 'logout' %}"><i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>Sign Out</a>
+          <p class="mb-1 mt-3 font-weight-semibold">{{ request.user.first_name }} {{ request.user.last_name }}</p>
+          <p class="fw-light text-muted mb-0">{{ request.user }}</p>
         </div>
-      </li>
-    </ul>
+        <a class="dropdown-item" href="{% url 'profile_edit_page' %}"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My Profile <span class="badge badge-pill badge-danger">1</span></a>
+        <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-message-text-outline text-primary me-2"></i> Messages</a>
+        <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-calendar-check-outline text-primary me-2"></i> Activity</a>
+        <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-help-circle-outline text-primary me-2"></i> FAQ</a>
+        <a class="dropdown-item" href="{% url 'logout' %}"><i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>Sign Out</a>
+      </div>
+    </li>
   {% endif %}
-{% endif %} 
+{% endif %}
+
       <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
         data-bs-toggle="offcanvas">
         <span class="mdi mdi-menu"></span>

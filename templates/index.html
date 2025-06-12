@@ -647,14 +647,14 @@
                       
                       <script>
                       $('#deshbord_date').attr('placeholder', 'Select date')
-    $('#deshbord_date').change(function() {
-      // Get the selected date from the input value
-      console.log('yess')
-      var selectedDate = $(this).val();
-      
-      // Do something with the selected date, such as displaying it
-      console.log('Selected date:', selectedDate);
-    });
+                        $('#deshbord_date').change(function() {
+                          // Get the selected date from the input value
+                          console.log('yess')
+                          var selectedDate = $(this).val();
+                          
+                          // Do something with the selected date, such as displaying it
+                          console.log('Selected date:', selectedDate);
+                        });
                       
                         function tasktable(eventId){
                         
@@ -694,81 +694,74 @@
 {% else %}
 
 
-<div class="row row-cols-1 row-cols-md-4">
-
-{% if user.is_authenticated %}
-
-
-      {% for event in userevents %}
-
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4">
+  {% if user.is_authenticated %}
+    {% for event in userevents %}
+      <div class="col d-flex justify-content-center mb-4">
         {% if event.id in attendees %}
-          <div class="card-f mb-4 me-3" style="background-color: #0a58ca;">
+          <div class="card-f" style="background-color: #0a58ca;">
             <div class="card-details">
               <p class="text-title" style="color: aliceblue;">{{ event.title }}</p>
-              <p class="text-body"><b>Description :</b>{{ event.description }}</p>
-              <p class="text-body"><b>Venue :</b>{{ event.venue }}</p>
-              <p class="text-body"><b>Date :</b>{{ event.date }} | Time :{{ event.time }}</p>
+              <p class="text-body"><b>Description :</b> {{ event.description }}</p>
+              <p class="text-body"><b>Venue :</b> {{ event.venue }}</p>
+              <p class="text-body"><b>Date :</b> {{ event.date }} | <b>Time :</b> {{ event.time }}</p>
             </div>
-            <b><p>Registerd</p></b>
+            <b><p class="text-white">Registered</p></b>
+          </div>
+        {% elif event.id in presentDate %}
+          <div class="card-f" style="background-color: gray;">
+            <div class="card-details">
+              <p class="text-title" style="color:#0a58ca;">{{ event.title }}</p>
+              <p class="text-body"><b>Description :</b> {{ event.description }}</p>
+              <p class="text-body"><b>Venue :</b> {{ event.venue }}</p>
+              <p class="text-body"><b>Date :</b> {{ event.date }} | <b>Time :</b> {{ event.time }}</p>
+            </div>
+            <p style="color: white;">The date has passed.</p>
           </div>
         {% else %}
-        
-          {% if event.id in presentDate %}
-            <div class="card-f mb-4 me-3" style="background-color: gray;">
-              <div class="card-details">
-                <p class="text-title" style="color:#0a58ca;">{{ event.title }}</p>
-                <p class="text-body"><b>Description :</b>{{ event.description }}</p>
-                <p class="text-body"><b>Venue :</b>{{ event.venue }}</p>
-                <p class="text-body"><b>Date :</b>{{ event.date }}  <b>Time :</b>{{ event.time }}</p>
-              </div>
-              <p style="color: white;">The date has passed.</p>
+          <div class="card-f">
+            <div class="card-details">
+              <p class="text-title" style="color:#0a58ca;">{{ event.title }}</p>
+              <p class="text-body"><b>Description :</b> {{ event.description }}</p>
+              <p class="text-body"><b>Venue :</b> {{ event.venue }}</p>
+              <p class="text-body"><b>Date :</b> {{ event.date }} | <b>Time :</b> {{ event.time }}</p>
             </div>
-          {% else %}
-            <div class="card-f mb-4 me-3">
-              <div class="card-details">
-                <p class="text-title" style="color:#0a58ca;">{{ event.title }}</p>
-                <p class="text-body"><b>Description :</b>{{ event.description }}</p>
-                <p class="text-body"><b>Venue :</b>{{ event.venue }}</p>
-                <p class="text-body"><b>Date :</b>{{ event.date }}  <b>Time :</b>{{ event.time }}</p>
-              </div>
-              <button class="card-button" onclick="attendEvent('{{ event.id }}','{{ event.title }}','{{ user.id }}')">Add</button>
-              </div>
-          {% endif %}
-
+            <button class="card-button" onclick="attendEvent('{{ event.id }}','{{ event.title }}','{{ user.id }}')">Add</button>
+          </div>
         {% endif %}
-
-      {% endfor %}
-
-{%else%}
-  {% for event in userevents %}
-
-        
-          
-          {% if event.id in presentDate %}
-          <div class="card-f mb-4 me-3" style="background-color: gray;">
+      </div>
+    {% endfor %}
+  {% else %}
+    {% for event in userevents %}
+      <div class="col d-flex justify-content-center mb-4">
+        {% if event.id in presentDate %}
+          <div class="card-f" style="background-color: gray;">
             <div class="card-details">
               <p class="text-title" style="color:#0a58ca;">{{ event.title }}</p>
-              <p class="text-body"><b>Description :</b>{{ event.description }}</p>
-              <p class="text-body"><b>Venue :</b>{{ event.venue }}</p>
-              <p class="text-body"><b>Date :</b>{{ event.date }} | Time :{{ event.time }}</p>
-              </div>
-              <p style="color: white;">The date has passed.</p>
-            </div>          
-          {% else %}
-          <div class="card-f mb-4 me-3">
+              <p class="text-body"><b>Description :</b> {{ event.description }}</p>
+              <p class="text-body"><b>Venue :</b> {{ event.venue }}</p>
+              <p class="text-body"><b>Date :</b> {{ event.date }} | <b>Time :</b> {{ event.time }}</p>
+            </div>
+            <p style="color: white;">The date has passed.</p>
+          </div>
+        {% else %}
+          <div class="card-f">
             <div class="card-details">
               <p class="text-title" style="color:#0a58ca;">{{ event.title }}</p>
-              <p class="text-body"><b>Description :</b>{{ event.description }}</p>
-              <p class="text-body"><b>Venue :</b>{{ event.venue }}</p>
-              <p class="text-body"><b>Date :</b>{{ event.date }} | Time :{{ event.time }}</p>
+              <p class="text-body"><b>Description :</b> {{ event.description }}</p>
+              <p class="text-body"><b>Venue :</b> {{ event.venue }}</p>
+              <p class="text-body"><b>Date :</b> {{ event.date }} | <b>Time :</b> {{ event.time }}</p>
             </div>
-            <a href="{% url 'login_page' %}"><button class="card-button">Add</button></a>
-            </div>
-          {% endif %}
-
-  {% endfor %}
-{% endif %}
+            <a href="{% url 'login_page' %}">
+              <button class="card-button">Add</button>
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% endif %}
 </div>
+
   <script>
     
       function attendEvent(eventId,eventTitle,userid){
