@@ -44,70 +44,73 @@
         color: white;
     }
     body {
-      background-color: #e9ecef;
-    }
-    .login-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 30px; /* Adjust the spacing between login card and example credentials */
+  background-color: #e9ecef;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", sans-serif;
 }
 
-.login-card {
-    width: 400px; /* Adjust width as needed */
-    padding: 20px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+/* Keep container vertical on all devices */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  padding: 20px;
 }
 
+/* Sample credentials card styling */
 .sample-creds-card {
-    width: 200px; /* Smaller size */
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
 }
-    .login-wrapper {
-      display: flex;
-      max-width: 950px;
-      width: 100%;
-      gap: 30px;
-    }
-    
-    .sample-creds-card {
-      width: 300px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      padding: 20px;
-    }
-    .sample-creds-card h5 {
-      font-size: 1rem;
-      color: #4b4b4b;
-      margin-bottom: 15px;
-    }
-    .cred-group {
-      background: #f8f9fa;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      font-size: 0.85rem;
-    }
-    .cred-group strong {
-      font-size: 0.9rem;
-    }
-    @media (max-width: 768px) {
-      .login-wrapper {
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-      }
-      .login-card, .sample-creds-card {
-        width: 100%;
-        max-width: 400px;
-      }
-    }
+
+.sample-creds-card h5 {
+  font-size: 1rem;
+  color: #4b4b4b;
+  margin-bottom: 15px;
+}
+
+/* Group container for horizontal layout */
+.cred-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Each credential box */
+.cred-group {
+  background: #f1f3f5;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  flex: 1;
+}
+
+/* Horizontal layout on PC */
+@media (min-width: 993px) {
+  .cred-wrapper {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+
+  .login-card, .sample-creds-card {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .circle {
+    margin-left: 0 !important;
+    margin-top: 10px;
+  }
+
+
   </style>
 </head>
 
@@ -131,7 +134,7 @@
   <div class="container-scroller">
     <div class="container-fluid page-body-wrapper full-page-wrapper">
         <div class="content-wrapper d-flex justify-content-center align-items-center auth px-0">
-            <div class="login-container d-flex">
+            <div class="login-container d-flex card">
                 <div class="login-wrapper d-flex flex-column align-items-center">
                     <!-- Login Card (Centered) -->
                     <div class="login-card">
@@ -179,6 +182,7 @@
                 <!-- Sample Credentials Card (Smaller, to the side) -->
                 <div class="sample-creds-card">
                     <h5>Sample Login Credentials</h5>
+                    <div class="cred-wrapper">
                     <div class="cred-group">
                         <strong>Admin:</strong><br>
                         Email: aa@gmail.com<br>
@@ -194,10 +198,11 @@
                         Email: sid@gmail.com<br>
                         Password: django123
                     </div>
+                    </div>
                     <div class="text-muted mt-2 small">
-    <i>For demo only. Normal users can sign up manually or just use Google login for convenience.</i>
-</div>
-
+                      <i>For demo only. Normal users can sign up manually or just use Google login for convenience.</i>
+                  </div>
+                  
                 </div>
             </div>
         </div>
