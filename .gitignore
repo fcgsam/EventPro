@@ -1,0 +1,20 @@
+echo "# Django
+*.sqlite3
+*.pyc
+__pycache__/
+migrations/
+*.log
+local_settings.py
+db.sqlite3
+/media/
+/staticfiles/
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+env/
+
+echo "eventproject-war.tar" >> .gitignore
+
+# ... (rest of the content above)" > .gitignore

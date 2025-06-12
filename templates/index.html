@@ -5,40 +5,35 @@
 {% if messages %}
     {% for message in messages %}
         {% if message.tags == "success" %}
-
             <script>
-              console.log('{{user.profile_image}}')
-              {% if request.user.socialaccount_set.all %}
-            {% with social_account=request.user.socialaccount_set.all.0 %}
-                {% if social_account.provider == 'google' %} 
-                iziToast.show({
-                                    title: 'Hey!',
-                                    
-                                    image:'{{ social_account.extra_data.picture }}',
-                                    message: '{{ message|safe }}',
-                                    theme: 'dark',
-                                    transitionIn:	'flipInX',
-                                    position	:'topCenter',
-                                    
-                                  })
+                console.log('{{ user.profile_image }}');
+
+                {% if request.user.socialaccount_set.all %}
+                    {% with social_account=request.user.socialaccount_set.all.0 %}
+                        {% if social_account.provider == 'google' %}
+                            iziToast.show({
+                                title: 'Hey!',
+                                image: '{{ social_account.extra_data.picture }}',
+                                message: '{{ message|safe }}',
+                                theme: 'dark',
+                                transitionIn: 'flipInX',
+                                position: 'topCenter',
+                            });
+                        {% endif %}
+                    {% endwith %}
+                {% else %}
+                    iziToast.show({
+                        title: 'Hey!',
+                        image: 'media/{{ user.profile_image }}',
+                        message: '{{ message|safe }}',
+                        theme: 'dark',
+                        transitionIn: 'flipInX',
+                        position: 'topCenter',
+                    });
                 {% endif %}
-      {% endwith %}
-      {% else %}
-                  iziToast.show({
-                                    title: 'Hey!',
-                                    
-                                    image:'media/{{ user.profile_image }}',
-                                    message: '{{ message|safe }}',
-                                    theme: 'dark',
-                                    transitionIn:	'flipInX',
-                                    position	:'topCenter',
-                                    
-                                  })
-                                    
-                     {% endif %}     
-                </script>
+            </script>
         {% endif %}
-        {% endfor %}
+    {% endfor %}
 {% endif %}
 {% if user.is_superuser or user.is_staff %}
 

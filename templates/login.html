@@ -43,119 +43,171 @@
         background-color: red;
         color: white;
     }
-    body{
+    body {
       background-color: #e9ecef;
     }
+    .login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px; /* Adjust the spacing between login card and example credentials */
+}
 
-</style>
+.login-card {
+    width: 400px; /* Adjust width as needed */
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.sample-creds-card {
+    width: 200px; /* Smaller size */
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+    .login-wrapper {
+      display: flex;
+      max-width: 950px;
+      width: 100%;
+      gap: 30px;
+    }
+    
+    .sample-creds-card {
+      width: 300px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    .sample-creds-card h5 {
+      font-size: 1rem;
+      color: #4b4b4b;
+      margin-bottom: 15px;
+    }
+    .cred-group {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+    }
+    .cred-group strong {
+      font-size: 0.9rem;
+    }
+    @media (max-width: 768px) {
+      .login-wrapper {
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+      .login-card, .sample-creds-card {
+        width: 100%;
+        max-width: 400px;
+      }
+    }
+  </style>
 </head>
 
 <body>
   {% if messages %}
     {% for message in messages %}
         {% if message.tags == "error" %}
-
             <script>
               console.log('{{message}}')
-                  iziToast.show({
-                                    title: 'Error',
-                                    message: '{{ message }}',
-                                    color: 'red',
-                                    position	:'bottomRight'
-                                  })
-                                    
-                          
-                </script>
+              iziToast.show({
+                title: 'Error',
+                message: '{{ message }}',
+                color: 'red',
+                position: 'bottomRight'
+              });
+            </script>
         {% endif %}
-        {% endfor %}
-</div>
-
-           
-    {% endif %}
+    {% endfor %}
+  {% endif %}
 
   <div class="container-scroller">
     <div class="container-fluid page-body-wrapper full-page-wrapper">
-      <div class="content-wrapper d-flex align-items-center auth px-0">
-        <div class="row w-100 mx-0">
-          <div class="col-lg-4 mx-auto">
-            <div class="auth-form-light text-left py-5 px-4 px-sm-5 card">
-              <div class="navbar-brand brand-logo">
-                <!-- <img src="images/logo.svg" alt="logo"> -->
-                Event Pro
-              </div>
-              <h4>Hello! let's get started</h4>
-              <h6 class="fw-light">Sign in to continue.</h6>
-              <form class="pt-3" method="post" action="{% url 'login' %}">
-                {% csrf_token %}
-                <div class="form-group">
-                  <input type="email" class="form-control form-control-lg" id="exampleInputEmail1"
-                    placeholder="Email" name="email_login">
+        <div class="content-wrapper d-flex justify-content-center align-items-center auth px-0">
+            <div class="login-container d-flex">
+                <div class="login-wrapper d-flex flex-column align-items-center">
+                    <!-- Login Card (Centered) -->
+                    <div class="login-card">
+                        <div class="navbar-brand brand-logo">Event Pro</div>
+                        <h4>Hello! let's get started</h4>
+                        <h6 class="fw-light">Sign in to continue.</h6>
+                        <form class="pt-3" method="post" action="{% url 'login' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <input type="email" class="form-control form-control-lg" id="exampleInputEmail1"
+                                    placeholder="Email" name="email_login">
+                            </div>
+                            <div class="form-group">
+                                <input type="password" class="form-control form-control-lg" id="exampleInputPassword1"
+                                    placeholder="Password" name="password_login">
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">SIGN IN</button>
+                            </div>
+                            <div class="my-2 d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <label class="form-check-label text-muted">
+                                        <input type="checkbox" class="form-check-input">
+                                        Keep me signed in
+                                    </label>
+                                </div>
+                                <a href="#" class="auth-link text-black">Forgot password?</a>
+                            </div>
+                            <div class="mb-3" style="display: flex; align-items: center;">
+                                <hr style="flex: 1; margin-right: 10px;">
+                                <span style="font-weight: bold;">or</span>
+                                <hr style="flex: 1; margin-left: 10px;">
+                            </div>
+                            <p class="mt-4 ms-2"><small>Sign up with</small></p>
+                            <a href="{% provider_login_url 'google'%}" style="text-decoration: none;">
+                                <div class="card circle ms-4"><b>G</b></div>
+                            </a>
+                            <div class="text-center mt-4 fw-light">
+                                Don't have an account? <a href="{% url 'register_page' %}" class="text-primary">Create</a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="form-group">
-                  <input type="password" class="form-control form-control-lg" id="exampleInputPassword1"
-                    placeholder="Password" name="password_login">
-                </div>
-                <div class="mt-3">
-                  <button type="submit" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">SIGN IN</button>
-                </div>
-                <div class="my-2 d-flex justify-content-between align-items-center">
-                  <div class="form-check">
-                    <label class="form-check-label text-muted">
-                      <input type="checkbox" class="form-check-input">
-                      Keep me signed in
-                    </label>
-                  </div>
-                  <a href="#" class="auth-link text-black">Forgot password?</a>
-                </div>
-                <!-- <div class="mb-2">
-                    <a href="{% provider_login_url 'google'%}">
-                  <button type="button" class="btn btn-block btn-facebook auth-form-btn">
-                        Google
 
-                    </button>
-                    </a>
-                  
-                </div> -->
-                <div class="mb-3" style="display: flex; align-items: center;">
-                  <hr style="flex: 1; margin-right: 10px;">
-                  <span style="font-weight: bold;">or</span>
-                  <hr style="flex: 1; margin-left: 10px;">
-                  
+                <!-- Sample Credentials Card (Smaller, to the side) -->
+                <div class="sample-creds-card">
+                    <h5>Sample Login Credentials</h5>
+                    <div class="cred-group">
+                        <strong>Admin:</strong><br>
+                        Email: aa@gmail.com<br>
+                        Password: 12django90
+                    </div>
+                    <div class="cred-group">
+                        <strong>Staff:</strong><br>
+                        Email: sam@gmail.com<br>
+                        Password: django123
+                    </div>
+                    <div class="cred-group">
+                        <strong>Staff 2:</strong><br>
+                        Email: sid@gmail.com<br>
+                        Password: django123
+                    </div>
+                    <div class="text-muted mt-2 small">
+                        <i>For demonstration purposes</i>
+                    </div>
                 </div>
-                <!-- <div class="" style="width: 80px"> -->
-                  <p class="mt-4 ms-2"><small>sign up with</small></p>
-                  <a href="{% provider_login_url 'google'%}" style="text-decoration: none;"><div class="card circle ms-4"><b>G</b></div></a>
-                <!-- </div> -->
-                <div class="text-center mt-4 fw-light">
-                  Don't have an account? <a href="{% url 'register_page' %}" class="text-primary">Create</a>
-                </div>
-              </form>
             </div>
-          </div>
         </div>
-      </div>
-      <!-- content-wrapper ends -->
     </div>
-    <!-- page-body-wrapper ends -->
-  </div>
-  <!-- container-scroller -->
-  <!-- plugins:js -->
-  <!-- <script src="vendors/js/vendor.bundle.base.js"></script> -->
-  <!-- <script src="vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script> -->
-  <!-- endinject -->
-  <!-- Plugin js for this page -->
-  <!-- <script src="vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script> -->
-  <!-- End plugin js for this page -->
-  <!-- inject:js -->
+</div>
+
+  <!-- Scripts -->
   <script src="{% static 'js/off-canvas.js' %}"></script>
   <script src="{% static 'js/hoverable-collapse.js' %}"></script>
   <script src="{% static 'js/template.js' %}"></script>
-  <!-- <script src="{% static 'js/settings.js' %}"></script>
-  <script src="js/todolist.js"></script> -->
-  <!-- endinject -->
-  
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
 </body>
-
 </html>
