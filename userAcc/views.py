@@ -17,7 +17,7 @@ def signin_view(request):
     if request.method == "POST":
         email = request.POST.get("email_login")
         password = request.POST.get("password_login")
-        print("13 === == ",email)
+        print("13 === == ",email,password)
         user = authenticate(request, username=email, password=password)
         print("new  === ",user)
         if user is not None:

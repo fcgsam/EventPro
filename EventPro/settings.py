@@ -98,9 +98,14 @@ WSGI_APPLICATION = 'EventPro.wsgi.application'
 # }
 import dj_database_url
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600,
+    )
 }
 
 
