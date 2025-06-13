@@ -11,33 +11,22 @@
         
 {% endif %}
 {% endfor %}
+
 {% if messages %}
-    {% for message in messages %}
+  {% for message in messages %}
+    <script>
+      iziToast.show({
+        title: '{{ message.tags|title }}!',
+        message: '{{ message|safe }}',
+        
         {% if message.tags == "success" %}
-
-            <script>
-              console.log('{{user.profile_image}}')
-                  iziToast.show({
-                                    title: 'Event !',
-                                    message: '{{ message|safe }}',
-                                    theme: 'dark',
-                                    
-                                  })
-                </script>
-
-        {% elif message.tags == "error"%}
-        <script>
-          console.log('{{user.profile_image}}')
-              iziToast.show({
-                                title: 'Error!',
-                                message: '{{ message|safe }}',
-                                color: 'red', 
-                              })
-                                
-                      
-            </script>
+          theme: 'dark',
+        {% else %}
+          color: 'red',
         {% endif %}
-        {% endfor %}
+      });
+    </script>
+  {% endfor %}
 {% endif %}
 
 

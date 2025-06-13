@@ -3,146 +3,132 @@
 {% load custom_filters %}
 {% block content %}
 
+<div class="container-fluid">
 
-<div class="col-lg-12">
-
-{% if messages %}
-    {% for message in messages %}
+  {% if messages %}
+  {% for message in messages %}
+    <script>
+      iziToast.show({
+        title: '{{ message.tags|title }}!',
+        message: '{{ message|safe }}',
         {% if message.tags == "success" %}
-            <script>
-                  iziToast.show({
-                                    title: 'Success!',
-                                    message: '{{ message|safe }}',
-                                    theme: 'dark',
-                                  })             
-            </script>
-            {% elif message.tags == "error" %}
-            <script>
-                iziToast.show({
-                                  title: 'Error!',
-                                  message: '{{ message|safe }}',
-                                  color: 'red',
-                                })             
-          </script>
+          theme: 'dark',
+        {% else %}
+          color: 'red',
         {% endif %}
-    {% endfor %}
+      });
+    </script>
+  {% endfor %}
 {% endif %}
-    <!-- <div class="row flex-grow"> -->
-        <!-- <div class="col-12 grid-margin stretch-card"> -->
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-sm-flex justify-content-between align-items-start mb-3">
-                        <div>
-                          <h4 class="card-title card-title-dash">Account</h4>
-                        </div>   
-                    </div>
-                    <div class="d-flex mt-4 border-top">
-                        <div class="list-wrapper ml-3 mt-5 w-75">
-                            <form method="POSt" action="{% url 'addAcount' %}" enctype="multipart/form-data">
-                                {% csrf_token %}
-                            <div class="row">
-                            <div class="form-floating mb-3 col">
-                                <input type="text" class="form-control" id="Account_firstname" placeholder="First Name" name="first_A_name">
-                                <label class="ms-2" for="Account_name">First Name</label>
-                            </div>
 
-                            <div class="form-floating mb-3 col">
-                                <input type="text" class="form-control" id="Account_lastname" placeholder="Last Name" name="last_A_name">
-                                <label class="ms-2" for="Account_name">Last Name</label>
-                            </div>
 
-                            <div class="form-floating mb-3 col">
-                                <input type="text" class="form-control" id="Account_username" placeholder="UserName" name="Username_A_name">
-                                <label class="ms-2" for="Account_name">UserName</label>
-                            </div>
-                            </div>
-                            <div class="row">
-                            <div class="form-floating mb-3 col">
-                                <input type="email" class="form-control" id="Account_email" placeholder="Email" name="email_A_name">
-                                <label class="ms-2" for="Account_name">Email</label>
-                            </div>
+  <div class="card mt-3">
+    <div class="card-body">
+      <h4 class="card-title">Account</h4>
+      <form method="POST" action="{% url 'addAcount' %}" enctype="multipart/form-data">
+        {% csrf_token %}
 
-                            <div class="form-floating mb-3 col">
-                                <input type="number" class="form-control" id="Account_number" placeholder="Number" name="phone_A_name">
-                                <label class="ms-2" for="Account_name">Number</label>
-                            </div>
+        <div class="row row-cols-1 row-cols-md-3 g-3">
+          <div class="form-floating col">
+            <input type="text" class="form-control" id="Account_firstname" name="first_A_name" placeholder="First Name">
+            <label for="Account_firstname">First Name</label>
+          </div>
 
-                            <div class="form-floating mb-3 col">
-                                <input type="text" class="form-control" id="Account_password" placeholder="Password" name="password_A_name">
-                                <label class="ms-2" for="Account_name">Password</label>
-                            </div>
-                            </div>
-                            <!-- <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="Account_name" placeholder="First Name" name="first_A_name">
-                                <label for="Account_name">First Name</label>
-                            </div> -->
-                            <div class="input-group mb-5">
-                                <label class="input-group-text mt-2" for="Account_pic" style="border: none;">Profile Pic</label>
-                                <input type="file" class="form-control mt-2" id="Account_pic" name="profile_pic_Account" accept="image/*" >
-                            </div>
-                            <caption class="mt-4">Groups</caption>
-                            <div class="col w-50 me-5 ps-5 pt-2" style="border: 1px solid black; height: 250px; border-radius: 30px;">
-                                
-                                {% for group in groups %}
-                        
-                                    <input type="checkbox"  id="checkBoxm_{{group.id}}" name="groups_name_add" value="{{ group.id}}" {% if group.id in groups %}checked{% endif %}>
-                                    <label for="checkBoxm_{{group.id}}">{{ group.name }}</label><br>
-                                {% endfor %}
-                            </div>
-                            <button type="submit" class="btn btn-outline-primary mt-3">save</button>
-                        </form>
-                        </div>      
-                    </div>  
-                </div>
-            </div>
-        <!-- </div> -->
-    <!-- </div> -->
-    <div class="card mt-3 p-4 overflow-x-auto">
-        <table class="display table table-hover">
-            <thead>
-                <tr>
-                    <th>Profile</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>UserName</th>
-                    <th>Email</th>
-                    <th>Phone No.</th>
-                    <th>Active</th>
-                    <th>Staff</th>
-                    <th>Group</th>
-                </tr>
-            </thead>
-            <tbody >
-                {% for info in info_user %}
-                {% if info.user.is_staff and not info.user.is_superuser and info.user.email != user.email%}
-                    <tr class="overflow-x-auto" style="cursor: pointer;">
-                        {% if info.user.profile_image %}
-                        <td><a href='{% url "account_edit" encoded_userId=info.user.id|encrypt_id %}' style="text-decoration: none; color: black;"><img class="img-sm rounded-10" src="{{ info.user.profile_image.url }}"></a></td>
-                        {% else %}
-                        <td></td>
-                        {% endif %}
-                        <td><a href='{% url "account_edit" encoded_userId=info.id|encrypt_id %}' style="text-decoration: none; color: black;">{{ info.user.first_name }}</a></td>
-                        <td><a href='{% url "account_edit" encoded_userId=info.user.id|encrypt_id %}' style="text-decoration: none; color: black;">{{ info.user.last_name }}</a></td>
-                        <td><a href='{% url "account_edit" encoded_userId=info.user.id|encrypt_id %}' style="text-decoration: none; color: black;">{{ info.user.username }}</a></td>
-                        <td><a href='{% url "account_edit" encoded_userId=info.user.id|encrypt_id %}' style="text-decoration: none; color: black;">{{ info.user.email }}</a></td>
-                        <td><a href='{% url "account_edit" encoded_userId=info.user.id|encrypt_id %}' style="text-decoration: none; color: black;">{{ info.user.phone_number }}</a></td>
-                        <td><a href='{% url "account_edit" encoded_userId=info.user.id|encrypt_id %}' style="text-decoration: none; color: black;">{% if info.user.is_active %}Yes {% else %} No{% endif %}</a></td>
-                        <td><a href='{% url "account_edit" encoded_userId=info.user.id|encrypt_id %}' style="text-decoration: none; color: black;">{% if info.user.is_staff %}Yes {% else %} No{% endif %}</a></td>
-                        <td>
-                            {% for group in info.groups %}
-                                {{ group.name }}
-                                {% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </td>
-                    </tr>
-                {% endif %}
+          <div class="form-floating col">
+            <input type="text" class="form-control" id="Account_lastname" name="last_A_name" placeholder="Last Name">
+            <label for="Account_lastname">Last Name</label>
+          </div>
+
+          <div class="form-floating col">
+            <input type="text" class="form-control" id="Account_username" name="Username_A_name" placeholder="UserName">
+            <label for="Account_username">Username</label>
+          </div>
+
+          <div class="form-floating col">
+            <input type="email" class="form-control" id="Account_email" name="email_A_name" placeholder="Email">
+            <label for="Account_email">Email</label>
+          </div>
+
+          <div class="form-floating col">
+            <input type="number" class="form-control" id="Account_number" name="phone_A_name" placeholder="Number">
+            <label for="Account_number">Number</label>
+          </div>
+
+          <div class="form-floating col">
+            <input type="text" class="form-control" id="Account_password" name="password_A_name" placeholder="Password">
+            <label for="Account_password">Password</label>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <label class="form-label">Profile Pic</label>
+          <input type="file" class="form-control" id="Account_pic" name="profile_pic_Account" accept="image/*">
+        </div>
+
+        <div class="mt-4">
+          <h6 class="fw-bold">Groups</h6>
+          <div class="border rounded p-3" style="max-height: 250px; overflow-y: auto;">
+            {% for group in groups %}
+              <div class="form-check mb-2 ms-4">
+                <input class="form-check-input" type="checkbox" id="checkBoxm_{{ group.id }}" name="groups_name_add" value="{{ group.id }}" {% if group.id in groups %}checked{% endif %}>
+                <label class="form-check-label" for="checkBoxm_{{ group.id }}">{{ group.name }}</label>
+              </div>
             {% endfor %}
-            
-            </tbody>
-        </table>
+          </div>
+        </div>
 
-    
+        <button type="submit" class="btn btn-outline-primary mt-4">Save</button>
+      </form>
     </div>
+  </div>
+
+  <div class="card mt-4 p-3">
+    <h5 class="mb-3">All Users</h5>
+    <div class="table-responsive">
+      <table class="display table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Profile</th>
+            <th>First</th>
+            <th>Last</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Active</th>
+            <th>Staff</th>
+            <th>Groups</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for info in info_user %}
+            {% if info.user.is_staff and not info.user.is_superuser and info.user.email != user.email %}
+              <tr>
+                <td>
+                  {% if info.user.profile_image %}
+                    <a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}">
+                      <img src="{{ info.user.profile_image.url }}" class="img-sm rounded-circle">
+                    </a>
+                  {% endif %}
+                </td>
+                <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.first_name }}</a></td>
+                <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.last_name }}</a></td>
+                <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.username }}</a></td>
+                <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.email }}</a></td>
+                <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.phone_number }}</a></td>
+                <td>{{ info.user.is_active|yesno:"Yes,No" }}</td>
+                <td>{{ info.user.is_staff|yesno:"Yes,No" }}</td>
+                <td>
+                  {% for group in info.groups %}
+                    {{ group.name }}{% if not forloop.last %}, {% endif %}
+                  {% endfor %}
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
