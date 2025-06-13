@@ -3,10 +3,6 @@
 {% load custom_filters %}
 {% block content %}
 
-<!-- {% for group in groups%}
- {{ group }}
-{% endfor %} -->
-
 {% if messages %}
     {% for message in messages %}
         {% if message.tags == "success" %}
@@ -29,321 +25,364 @@
     {% endfor %}
 {% endif %}
 
-<div class="row">
-    
-    <div class="container-fluid">
-  <div class="row gy-4 flex-column flex-lg-row">
-    <!-- Left Form -->
-    <div class="col-lg-6">
-      <div class="card p-4">
-        <form action="{% url 'make_group' %}" method="post">
-          {% csrf_token %}
+<div class="container-fluid">
+    <div class="row g-3">
+        <!-- Create Group Card -->
+        <div class="col-12 col-lg-6">
+            <div class="card h-100 p-3 p-lg-4">
+                <form action="{% url 'make_group' %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-floating mb-4">
+                        <input type="text" class="form-control" id="group_namess" placeholder="Group Name" name="group_name">
+                        <label for="group_namess">Group Name</label>
+                    </div>
 
-          <div class="form-floating mb-4">
-            <input type="text" class="form-control" id="group_namess" placeholder="Group Name" name="group_name">
-            <label for="group_namess">Group Name</label>
-          </div>
-
-          <!-- Permissions -->
-          <div class="form-check mb-2 m-2">
-            <input class="form-check-input" type="checkbox" name="event_group" id="event_group">
-            <label class="form-check-label" for="event_group">
-              Can Add, Edit, and Delete Event
-            </label>
-          </div>
-          <div class="form-check mb-2 m-2">
-            <input class="form-check-input" type="checkbox" name="staff_group" id="staff_group">
-            <label class="form-check-label" for="staff_group">
-              Can Add, Edit, and Delete Staff
-            </label>
-          </div>
-          <div class="form-check mb-4 m-2">
-            <input class="form-check-input" type="checkbox" name="group_group" id="group_group">
-            <label class="form-check-label" for="group_group">
-              Can Add, Edit, and Delete Group
-            </label>
-          </div>
-
-          <!-- Buttons -->
-          <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-outline-primary">Save</button>
-
-            <div class="dropdown">
-              <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Add Member
-              </button>
-              <div class="dropdown-menu p-3 overflow-auto" style="height: 300px; max-width: 100%; min-width: 280px;">
-                <div class="form-floating mb-3">
-                  <input type="text" class="form-control" id="Search_user_id" placeholder="Search" onkeyup="TableFunction()">
-                  <label for="Search_user_id">Search</label>
-                </div>
-                <table class="table table-sm">
-                  {% for user_info in info %}
-                    {% if user_info.is_staff and not user_info.is_superuser and user.id != user_info.id %}
-                      <tr title="{{ user_info.first_name }} | {{ user_info.email }}" style="cursor:pointer;">
-                        <td><input type="checkbox" name="members_lst" value="{{ user_info.id }}"></td>
-                        <td><img class="img-xs rounded-circle" src="media/{{ user_info.profile_image }}" alt="Profile"></td>
-                        <td><b>{{ user_info.first_name }}</b></td>
-                        <td><b>{{ user_info.email }}</b></td>
-                      </tr>
-                    {% endif %}
-                  {% endfor %}
-                </table>
-              </div>
+                    <div class="mb-4 ms-4">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="event_group" id="event_group">
+                            <label class="form-check-label" for="event_group">Can Add and Edit and Delete Event</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="staff_group" id="staff_group">
+                            <label class="form-check-label" for="staff_group">Can Add and Edit and Delete Staff</label>
+                        </div>
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" name="group_group" id="group_group">
+                            <label class="form-check-label" for="group_group">Can Add and Edit and Delete Group</label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex flex-column flex-lg-row gap-2 mb-3">
+                        <button type="submit" class="btn btn-outline-primary flex-grow-1">Save</button>
+                        
+                        <div class="dropdown flex-grow-1">
+                            <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="dropdown" aria-expanded="false" id="UserDropdown_e">Add Member</button>
+                            <div class="dropdown-menu dropdown-menu-end w-100" aria-labelledby="UserDropdown_e" style="max-height: 300px; overflow-y: auto;">
+                                <div class="p-2">
+                                    <div class="form-floating mb-2">
+                                        <input type="text" class="form-control" id="Search_user_id" placeholder="Search" onkeyup="TableFunction()">
+                                        <label for="Search_user_id">Search Members</label>
+                                    </div>
+                                
+                                    <div style="max-height: 250px; overflow-y: auto;">
+                                        <table class="table table-sm" id="user_search_table">
+                                            <tbody>
+                                                {% for user_info in info %}
+                                                {% if user_info.is_staff and not user_info.is_superuser and user.id != user_info.id%}
+                                                <tr title="{{ user_info.first_name }} | {{ user_info.email }}" style="cursor: pointer;">
+                                                    <td width="30"><input type="checkbox" name="members_lst" value="{{ user_info.id }}"></td>
+                                                    <td width="40"><img class="img-xs rounded-circle" src="media/{{ user_info.profile_image }}" alt="Profile image"></td>
+                                                    <td><b>{{ user_info.first_name}}</b></td>
+                                                    <td><small class="text-muted">{{ user_info.email }}</small></td>
+                                                </tr>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Right Table -->
-    <div class="col-lg-6">
-      <div class="card p-4">
-        <h5 class="mb-3">Group Names</h5>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>Name</th>
-                <th>Edit</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for group in groups %}
-                <tr>
-                  <td>{{ group }}</td>
-                  <td>
-                    <button type="button" class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#edit_group" onclick="edit_group('{{ group.id }}','{{ group }}')">
-                      <i class="mdi mdi-pencil"></i>
-                    </button>
-                    <button type="button" class="btn btn-danger btn-sm" onclick="delete_group('{{ group.id }}','{{ group }}')">
-                      <i class="mdi mdi-delete-outline"></i>
-                    </button>
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
         </div>
-      </div>
+
+        <!-- Groups List Card -->
+        <div class="col-12 col-lg-6">
+            <div class="card h-100 p-3 p-lg-4">
+                <h5 class="mb-4">Group Names</h5>
+                <div class="table-responsive">
+                    <table class="display table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for group in groups%}
+                            <tr>
+                                <td>{{ group }}</td>
+                                <td class="text-end"> 
+                                    <button type="button" class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#edit_group" onclick="edit_group('{{ group.id }}','{{ group }}')">
+                                        <i class="mdi mdi-pencil"></i>
+                                    </button> 
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="delete_group('{{ group.id }}','{{ group }}')">
+                                        <i class="mdi mdi-delete-outline"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
+<!-- Edit Group Modal -->
+<div class="modal fade" id="edit_group" tabindex="-1" aria-labelledby="edit_groupLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="edit_groupLabel">Edit group</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                <form method="POST" action="{% url 'edit_group' %}">
+                    {% csrf_token %}
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="group_name_edit" placeholder="Group Name" name="group_edit">
+                        <label for="group_name_edit">Group Name</label>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <p class="text-sm mb-2">Check to remove permissions</p>
+                        <div id="permissions_div"></div>
+                    </div>
+                   
+                    <div class="mb-3">
+                        <p class="mb-2">Members</p>
+                        <div id="members_div"></div>
+                    </div>
+                    
+                    <div class="dropdown mb-3">
+                        <button type="button" class="btn btn-outline-primary w-100 mb-2" data-bs-toggle="dropdown" aria-expanded="false" id="UserDropdown_e_edit">Add Member</button>
+                        <div class="dropdown-menu dropdown-menu-end w-100" aria-labelledby="UserDropdown_e_edit" style="max-height: 300px; overflow-y: auto;">
+                            <div class="p-2">
+                                <div class="form-floating mb-2">
+                                    <input type="text" class="form-control" id="Search_user_id_edit" placeholder="Search" onkeyup="TableFunctionEdit()">
+                                    <label for="Search_user_id_edit">Search Members</label>
+                                </div>
+                            
+                                <div style="max-height: 250px; overflow-y: auto;">
+                                    <table class="table table-sm" id="user_search_table_edit">
+                                        <tbody>
+                                            {% for user_info in info %}
+                                            {% if user_info.is_staff and not user_info.is_superuser %}
+                                            <tr title="{{ user_info.first_name }} | {{ user_info.email }}" style="cursor: pointer;">
+                                                <td width="30"><input type="checkbox" name="edit_members_lst" value="{{ user_info.id }}"></td>
+                                                <td width="40"><img class="img-xs rounded-circle" src="media/{{ user_info.profile_image }}" alt="Profile image"></td>
+                                                <td><b>{{ user_info.first_name}}</b></td>
+                                                <td><small class="text-muted">{{ user_info.email }}</small></td>
+                                            </tr>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="dropdown mb-4">
+                        <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="dropdown" aria-expanded="false" id="UserDropdown_p">Add Permissions</button>
+                        <div class="dropdown-menu dropdown-menu-end w-100" aria-labelledby="UserDropdown_p">
+                            <div class="p-2 ms-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="edit_permission_lst" value="s" id="perm_staff">
+                                    <label class="form-check-label" for="perm_staff">Add, edit and delete staff</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="edit_permission_lst" value="e" id="perm_event">
+                                    <label class="form-check-label" for="perm_event">Add, edit and delete Event</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="edit_permission_lst" value="g" id="perm_group">
+                                    <label class="form-check-label" for="perm_group">Add and delete Group</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-
+                    <input type="hidden" name="group_id_name" id="group_id" value="">
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+
 <script>
     function delete_group(groupId,groupName){
-        console.log('info',groupId,groupName)
         iziToast.show({
-
             overlay: true,
             zindex:999,
             icon: 'icon-person',
             title: 'Delete',
-            message: 'Do u want to delete Event <b>"'+groupName+'"!</b>',
-            position: 'center', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter
-            // progressBarColor: 'rgb(0, 255, 184)',
-            // image:'static/images/faces/face5.jpg',
-            transitionIn:'bounceInDown',
+            message: 'Do you want to delete Group <b>"'+groupName+'"!</b>',
+            position: 'center',
             color:'red',
             timeout:false,
-            buttons: [['<button>Yess</button>', function (instance, toast) {
-
-
-                $.ajax({
-                    url:'/delete_group/',
-                    method:'POST',
-                    data:{
-                        groupid :groupId
-                    },
-                    dataType:'json',
-                    success: function(request){
-                        location.reload()
-
-                        instance.hide({
-                            transitionOut: 'fadeOutUp',
-                            onClosing: function(instance, toast, closedBy){
-                                console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
-                            }
-                        }, toast, 'buttonName');
-                    },error:function(){
-                        console.error('Error for Delete Group');
-                    }
-
-                })
-            },true],
+            buttons: [
+                ['<button>Yes</button>', function (instance, toast) {
+                    $.ajax({
+                        url:'/delete_group/',
+                        method:'POST',
+                        data:{
+                            groupid :groupId
+                        },
+                        dataType:'json',
+                        success: function(request){
+                            location.reload()
+                            instance.hide({
+                                transitionOut: 'fadeOutUp',
+                                onClosing: function(instance, toast, closedBy){
+                                    console.info('closedBy: ' + closedBy);
+                                }
+                            }, toast, 'buttonName');
+                        },
+                        error:function(){
+                            console.error('Error for Delete Group');
+                        }
+                    })
+                }, true],
                 ['<button>No</button>', function (instance, toast) {
                     instance.hide({
                         transitionOut: 'fadeOutUp',
                         onClosing: function(instance, toast, closedBy){
-                            console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
+                            console.info('closedBy: ' + closedBy);
                         }
                     }, toast, 'buttonName');
                 }]
-            
-                ],
+            ],
             onOpening: function(instance, toast){
                 console.info(groupId);
             },
             onClosing: function(instance, toast, closedBy){
-                console.info('closedBy: ' + closedBy); // tells if it was closed by 'drag' or 'button'
+                console.info('closedBy: ' + closedBy);
             }
-        })}
+        });
+    }
 
     function edit_group(groupID,groupName){
         $('#group_name_edit').val(groupName)
         $('#group_id').val(groupID)
         $.ajax({
-                    url:'/group_info/',
-                    method:'POST',
-                    data:{
-                        groupid :groupID
-                    },
-                    dataType:'json',
-                    success: function(request){
-                        permissions = request.permissions
-                        members =request.group_member
-                        console.log(members)
-                        // var permission_lst = []
-                        member_txt = '<p class"mb-3">members</p>'
-                        $('#members_div').empty();
-                        if(members.length == 0){
-                            $('#members_div').append('<p>---No members---</p>');
-                        }else{
-                        for(var i=0;i<members.length;i++){
-                            console.log(members[i].email )
-                                let email_user = members[i].email
-                                let user_email ='{{ user.email }}'
-                                var checkbox = '<input type="checkbox"  id="checkBoxm_'+i+'" name="checkNamem" value="'+members[i].id+'">';
-                                // var checkboxLabel = '<label for="checkBoxm_'+i+'">' + members[i].email + '</label>';
-                                var checkboxLabel = '<label class="badge d-flex align-items-center p-1 pe-2 text-dark-emphasis bg-dark-subtle border border-dark-subtle rounded-pill " style="width:300px;"  for="checkBoxm_'+i+'"><img class="rounded-circle me-1" style="width:25px" src="'+members[i].profile_pic+'" alt="">'+members[i].first_name+' | '+members[i].email+'</label>'
-                                if(email_user != user_email){
-                                $('#members_div').append(checkbox + checkboxLabel + '<br>');
-                                }else{
-                                    $('#members_div').append('---You--- <br><br>')
-                                }
-                        }}
-
-                        let staffPermissions = [];
-                        var s = 0,e=0,g=0
-                        
-                        permissions.forEach(permission => {
-                            if (permission.name.toLowerCase().includes('staff')) {
-                                if(s == 0){
-                                    staffPermissions.push('s');
-                                    s++
-                                }
-                                
-                            }else if(permission.name.toLowerCase().includes('event')){
-                                if(e == 0){
-                                    staffPermissions.push('e');
-                                    e++
-                                }
-                                
-                                
-                            }else if(permission.name.toLowerCase().includes('group')){
-                                if(g == 0){
-                                    staffPermissions.push('g');
-                                    g++
-                                }
-                            }
-                        });
-                        // console.log(staffPermissions)
-                        if(staffPermissions.length == 1){
-                            var group_text = '<p class="mb-2">Permissions</p>'
-                            if (staffPermissions[0] == 's') {
-                                $('#permissions_div').empty();
-                                let tex = 'To add,Edit and delete staff'
-                                
-                                var checkbox = '<input type="checkbox" id="checkBox_1" name="checkName" value="staff">';
-                                var checkboxLabel = '<label for="checkBox_1">' + tex + '</label>';
-                                $('#permissions_div').append(group_text,checkbox + checkboxLabel + '<br>');
-                            } 
-                            if(staffPermissions[0] == 'e'){
-                                $('#permissions_div').empty();
-                                let tex = 'To add,Edit and delete Event'
-                                var checkbox = '<input type="checkbox" id="checkBox_2" name="checkName" value="event">';
-                                var checkboxLabel = '<label for="checkBox_2">' + tex + '</label>';
-                                $('#permissions_div').append(group_text,checkbox + checkboxLabel + '<br>');
-                            }
-                            if(staffPermissions[0] == 'g'){
-                                $('#permissions_div').empty();
-                                let tex = 'To Add and delete Group'
-                                var checkbox = '<input type="checkbox" id="checkBox_3" name="checkName" value="group">';
-                                var checkboxLabel = '<label for="checkBox_3">' + tex + '</label>';
-                                $('#permissions_div').append(group_text,checkbox + checkboxLabel + '<br>');
-                            }
-
-                        }else if(staffPermissions.length == 0){
-                            $('#permissions_div').empty();
-                            $('#permissions_div').append('<p>---No Permissions Added---</p>');
+            url:'/group_info/',
+            method:'POST',
+            data:{
+                groupid :groupID
+            },
+            dataType:'json',
+            success: function(request){
+                permissions = request.permissions
+                members = request.group_member
+                
+                $('#members_div').empty();
+                if(members.length == 0){
+                    $('#members_div').append('<p class="text-muted">---No members---</p>');
+                } else {
+                    for(var i=0; i<members.length; i++){
+                        let email_user = members[i].email
+                        let user_email = '{{ user.email }}'
+                        var checkbox = '<input type="checkbox" id="checkBoxm_'+i+'" name="checkNamem" value="'+members[i].id+'">';
+                        var checkboxLabel = '<label class="badge d-flex align-items-center p-1 pe-2 text-dark-emphasis bg-dark-subtle border border-dark-subtle rounded-pill mb-2" style="width:100%; max-width:300px;" for="checkBoxm_'+i+'"><img class="rounded-circle me-1" style="width:25px" src="'+members[i].profile_pic+'" alt="">'+members[i].first_name+' | '+members[i].email+'</label>'
+                        if(email_user != user_email){
+                            $('#members_div').append('<div class="mb-2">' + checkbox + checkboxLabel + '</div>');
+                        } else {
+                            $('#members_div').append('<div class="mb-3">---You---</div>')
                         }
-                        else{
-                            $('#permissions_div').empty();
-                            var group_text2 = '<p class="mb-2">Permissions</p>'
-                            $('#permissions_div').append(group_text2);
-                            for(var i=0;i<staffPermissions.length;i++){
-                                // var checkbox = '<input type="checkbox" id="checkBox_' + i + '" name="checkName_' + i + '" >';
-                                // var checkboxLabel = '<label for="checkBox_' + i + '">' + permissions + '</label>';
-                                console.log(staffPermissions[i])
-                                
-                                if (staffPermissions[i] == 's') {
-                                    
-                                    let tex = 'To add,Edit and delete staff'
-                                    var checkbox = '<input type="checkbox" id="checkBox_1" name="checkName" value="event">';
-                                    var checkboxLabel = '<label for="checkBox_1">' + tex + '</label>';
-                                    $('#permissions_div').append(checkbox + checkboxLabel + '<br>');
-                                } 
-                                if(staffPermissions[i] == 'e'){
-                                    
-                                    let tex = 'To add,Edit and delete Event'
-                                    var checkbox = '<input type="checkbox" id="checkBox_2" name="checkName" value="event">';
-                                    var checkboxLabel = '<label for="checkBox_2">' + tex + '</label>';
-                                    $('#permissions_div').append(checkbox + checkboxLabel + '<br>');
-                                }
-                                if(staffPermissions[i] == 'g'){
-                                    
-                                    let tex = 'To Add and delete Group'
-                                    var checkbox = '<input type="checkbox" id="checkBox_3" name="checkName" value="group">';
-                                    var checkboxLabel = '<label for="checkBox_3">' + tex + '</label>';
-                                    $('#permissions_div').append(checkbox + checkboxLabel + '<br>');
-                                }
-                            }
                     }
-                    },error:function(){
-                        console.error('Error for Delete Group');
+                }
+
+                let staffPermissions = [];
+                var s = 0, e = 0, g = 0
+                
+                permissions.forEach(permission => {
+                    if (permission.name.toLowerCase().includes('staff') && s == 0) {
+                        staffPermissions.push('s');
+                        s++;
+                    } else if(permission.name.toLowerCase().includes('event') && e == 0){
+                        staffPermissions.push('e');
+                        e++;
+                    } else if(permission.name.toLowerCase().includes('group') && g == 0){
+                        staffPermissions.push('g');
+                        g++;
                     }
-    })
+                });
+                
+                $('#permissions_div').empty();
+                if(staffPermissions.length == 0){
+                    $('#permissions_div').append('<p class="text-muted">---No Permissions Added---</p>');
+                } else {
+                    $('#permissions_div').append('<p class="text-sm mb-2">Current permissions (check to remove):</p>');
+                    
+                    if (staffPermissions.includes('s')) {
+                        let tex = 'Add, Edit and delete staff'
+                        var checkbox = '<div class="form-check mb-2 ms-3"><input class="form-check-input" type="checkbox" id="checkBox_1" name="checkName" value="staff"><label class="form-check-label" for="checkBox_1">' + tex + '</label></div>';
+                        $('#permissions_div').append(checkbox);
+                    } 
+                    if(staffPermissions.includes('e')){
+                        let tex = 'Add, Edit and delete Event'
+                        var checkbox = '<div class="form-check mb-2 ms-3"><input class="form-check-input" type="checkbox" id="checkBox_2" name="checkName" value="event"><label class="form-check-label" for="checkBox_2">' + tex + '</label></div>';
+                        $('#permissions_div').append(checkbox);
+                    }
+                    if(staffPermissions.includes('g')){
+                        let tex = 'Add and delete Group'
+                        var checkbox = '<div class="form-check mb-2 ms-3"><input class="form-check-input" type="checkbox" id="checkBox_3" name="checkName" value="group"><label class="form-check-label" for="checkBox_3">' + tex + '</label></div>';
+                        $('#permissions_div').append(checkbox);
+                    }
+                }
+            },
+            error:function(){
+                console.error('Error for Delete Group');
+            }
+        });
     }
-</script>
-<script>
-    // document.addEventListener('DOMContentLoaded', function() {
-        
 
     function TableFunction() {
-        console.log("TableFunction called");
-  const input = document.getElementById("Search_user_id");
-  const filter = input.value.toUpperCase();
-  const table = document.getElementById("user_search_table");
-  const rows = table.getElementsByTagName("tr");
+        const input = document.getElementById("Search_user_id");
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById("user_search_table");
+        const rows = table.getElementsByTagName("tr");
 
-  for (let i = 0; i < rows.length; i++) {
-      const td = rows[i].getElementsByTagName("td")[1];
-      const td2= rows[i].getElementsByTagName("td")[2];
-      if (td,td2) {
-          const txtValue = td.textContent || td.innerText;
-          const txtValue2 = td2.textContent || td2.innerText;
-          if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) {
-              rows[i].style.display = "";
-          } else {
-              rows[i].style.display = "none";
-          }
-      }
-  }
-}
-// });
+        for (let i = 0; i < rows.length; i++) {
+            const tds = rows[i].getElementsByTagName("td");
+            let showRow = false;
+            
+            for (let j = 0; j < tds.length; j++) {
+                if (tds[j]) {
+                    const txtValue = tds[j].textContent || tds[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        showRow = true;
+                        break;
+                    }
+                }
+            }
+            
+            rows[i].style.display = showRow ? "" : "none";
+        }
+    }
+
+    function TableFunctionEdit() {
+        const input = document.getElementById("Search_user_id_edit");
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById("user_search_table_edit");
+        const rows = table.getElementsByTagName("tr");
+
+        for (let i = 0; i < rows.length; i++) {
+            const tds = rows[i].getElementsByTagName("td");
+            let showRow = false;
+            
+            for (let j = 0; j < tds.length; j++) {
+                if (tds[j]) {
+                    const txtValue = tds[j].textContent || tds[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        showRow = true;
+                        break;
+                    }
+                }
+            }
+            
+            rows[i].style.display = showRow ? "" : "none";
+        }
+    }
 </script>
 {% endblock %}
