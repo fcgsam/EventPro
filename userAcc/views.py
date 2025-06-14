@@ -83,8 +83,8 @@ def signup_view(request):
                 profile_image_path = default_storage.save('profile_pics/' + profile_pic.name, ContentFile(profile_pic.read()))
 
                 # You can proceed with saving other information related to the user as needed
-                messages.success(request, "Profile image uploaded successfully.")
-                return redirect("home")
+                # messages.success(request, "Profile image uploaded successfully.")
+                # return redirect("home")
 
             except (IOError, SyntaxError):
                 # If the file is not a valid image
@@ -172,8 +172,8 @@ def Account_view(request):
                 # Define the path to save the profile picture (e.g., 'profile_pics/filename')
                 path = default_storage.save('profile_pics/' + profile_pic.name, ContentFile(profile_pic.read()))
 
-                messages.success(request, "Profile picture uploaded successfully.")
-                return redirect("home")
+                # messages.success(request, "Profile picture uploaded successfully.")
+                # return redirect("home")
 
             except (IOError, SyntaxError):
                 # If the file is not a valid image
