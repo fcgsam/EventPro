@@ -22,6 +22,10 @@ from django.template import RequestContext
 from .keys import cipher_suite
 from django.contrib.auth.models import User,Group,Permission
 # Create your views here.
+
+def custom_404_view(request, exception):
+    return render(request, "404.html", status=404)
+
 def desboard_page(request):
     
     amount=0
@@ -127,7 +131,7 @@ def desboard_page(request):
         return render(request, 'index.html', {'userevents': events,'presentDate':lstOfDate})
     # return render(request,'index.html')
             
-    
+
 
 @login_required(login_url='login_page')
 def Event_page(request):
@@ -753,8 +757,7 @@ def update_event(request):
         return JsonResponse({'status': 'error', 'message': 'Only POST requests are allowed'})
 
 
-def custom_404_view(request, exception=None):
-    return redirect(request,'404/404.html')
+
 
 
 def new_group(request):
