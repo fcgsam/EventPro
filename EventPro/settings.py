@@ -16,7 +16,12 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+print(BASE_DIR)
+print(MEDIA_ROOT)
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -24,7 +29,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 SECRET_KEY = 'django-insecure-!zz!v6#rzw8jx-o2++5%u&8yiuu%y0(=as&ew_c$gmkg)x4s5o'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['https://eventpro-15u7.onrender.com','*']
 LOGIN_URL = 'login'
@@ -185,7 +190,9 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
-MEDIA_URL = '/media/'
+
+
+
 
 SOCIALACCOUNT_QUERY_EMAIL = True
 AUTH_USER_MODEL = 'userAcc.CustomUser'

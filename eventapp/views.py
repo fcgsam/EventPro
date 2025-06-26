@@ -381,6 +381,8 @@ def Edit_account_admin(request,encoded_userId):
             # Get form data
             active_c = request.POST.get('active_edit')
             staff_c = request.POST.get('staff_edit')
+            email = request.POST.get('email_edit')
+            phone_number = request.POST.get('phone_number_edit')
             groups_ids = request.POST.getlist('groups_name')
             # Convert form data to boolean
             print('group_ides',groups_ids)
@@ -396,6 +398,8 @@ def Edit_account_admin(request,encoded_userId):
             print('active',active)
             userInfo.is_staff = staff
             userInfo.is_active = active
+            userInfo.email = email
+            userInfo.phone_number = phone_number
             userInfo.save()
             # CustomUser.objects.filter(id=userId).update(is_staff = staff,is_active=active)
             messages.success(request,'Account updated Successfully')

@@ -3,75 +3,130 @@
 {% load custom_filters %}
 {% block content %}
 
-<div class="card p-5">
-  <div class="flex flex-col lg:flex-row justify-center gap-10">
-    <div class="flex justify-center lg:justify-start lg:ms-5">
-      {% if userInfo.profile_image %}
-        <img class="rounded-full w-32 h-32 object-cover" src="{{ userInfo.profile_image.url }}">
-      {% endif %}
-    </div>
-    <!-- Left Form Section -->
-    <div class="w-full lg:w-2/3 mt-2">
-      <form method="POST" action="{% url 'edit_staff' encoded_userId=info.id|encrypt_id %}">
-        {% csrf_token %}
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div>
-            <h5>First Name</h5>
-            <p>{{ userInfo.first_name }}</p>
+<div class="container-fluid p-4">
+  <div class="row g-4">
+    <!-- Profile Card (Right Side) -->
+    <div class="col-lg-4 order-lg-2">
+      <div class="card h-100">
+        <div class="card-body d-flex flex-column align-items-center text-center p-4">
+          {% if userInfo.profile_image %}
+            <img class="rounded-circle mb-4" src="{{ userInfo.profile_image.url }}" width="120" height="120" style="object-fit: cover;">
+          
+          {% else %}
+            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mb-4" style="width: 120px; height: 120px;">
+              <i class="mdi mdi-account-circle menu-icon"></i>
+            </div>
+          {% endif %}
+          
+          <h3 class="card-title mb-1">{{ userInfo.first_name }} {{ userInfo.last_name }}</h3>
+          <p class="text-muted mb-3">{{ userInfo.email }}</p>
+          
+          <div class="d-flex gap-2 mb-4">
+            <span class="badge {% if userInfo.is_active %}bg-success{% else %}bg-danger{% endif %}">
+              {{ userInfo.is_active|yesno:"Active,Inactive" }}
+            </span>
+            <span class="badge bg-warning text-dark">
+              {{ userInfo.is_staff|yesno:"Staff,Regular User" }}
+            </span>
           </div>
-          <div>
-            <h5>Last Name</h5>
-            <p>{{ userInfo.last_name }}</p>
-          </div>
-          <div>
-            <h5>Username</h5>
-            <p>{{ userInfo.username }}</p>
-          </div>
-          <div>
-            <h5>Email</h5>
-            <p>{{ userInfo.email }}</p>
-          </div>
-          <div>
-            <h5>Phone Number</h5>
-            <p>{{ userInfo.phone_number }}</p>
-          </div>
-          <div class="flex gap-4 items-center mt-2">
-            <label class="flex items-center gap-2">
-              <input type="checkbox" name="active_edit" class="form-checkbox rounded" {% if userInfo.is_active %}checked{% endif %}>
-              <span>Active</span>
-            </label>
-            <label class="flex items-center gap-2">
-              <input type="checkbox" name="staff_edit" class="form-checkbox rounded" {% if userInfo.is_staff %}checked{% endif %}>
-              <span>Staff</span>
-            </label>
+          
+          <div class="w-100">
+            <div class="d-flex justify-content-between py-2 border-bottom">
+              <span class="text-muted">Username</span>
+              <span class="fw-medium">{{ userInfo.username }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-2 border-bottom">
+              <span class="text-muted">Phone</span>
+              <span class="fw-medium">{{ userInfo.phone_number }}</span>
+            </div>
           </div>
         </div>
-
-        <!-- Group Section -->
-        <div class="mt-3 mb-3">
-          <caption class="font-semibold text-lg">Groups</caption>
-          <div class="border border-gray-300 rounded-xl p-4 mt-2 max-h-64 overflow-y-auto">
-            {% for group in all_group %}
-              <label for="checkBoxm_{{group.id}}" class="flex items-center gap-2 mb-2">
-                <input type="checkbox" id="checkBoxm_{{group.id}}" name="groups_name" value="{{ group.id }}"
-                       {% if group.id in groups %}checked{% endif %} class="form-checkbox rounded">
-                {{ group.name }}
-              </label>
-            {% endfor %}
-          </div>
-        </div>
-
-        <!-- Submit Button -->
-        <div class="flex justify-end">
-          <button type="submit" class="btn btn-outline-primary">Save</button>
-        </div>
-      </form>
+      </div>
     </div>
 
-    <!-- Profile Image Section -->
-    
+    <!-- Edit Form Card (Left Side) -->
+    <div class="col-lg-8 order-lg-1">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Edit User Information</h4>
+          
+          <form method="POST" action="{% url 'edit_staff' encoded_userId=info.id|encrypt_id %}">
+            {% csrf_token %}
+            
+            <div class="row mb-4">
+              <div class="col-md-6 mb-3">
+                <!-- <label class="form-label">First Name</label>
+                <div class="form-control-plaintext">{{ userInfo.first_name }}</div> -->
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="Email_id" placeholder="Email" name="email_edit" value="{{ userInfo.email }}" required>
+                  <label for="Email_id">Email</label>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="phone_number_id" placeholder="Phone Number" name="phone_number_edit" value="{{ userInfo.phone_number }}" required>
+                  <label for="phone_number_id">Phone Number</label>
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label class="form-label">First Name</label>
+                <div class="form-control-plaintext">{{ userInfo.first_name }}</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Last Name</label>
+                <div class="form-control-plaintext">{{ userInfo.last_name }}</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Username</label>
+                <div class="form-control-plaintext">{{ userInfo.username }}</div>
+              </div>
+            </div>
 
+            <div class="mb-4">
+              <label class="form-label mb-3 fw-semibold">Account Status</label>
+              <div class="d-flex flex-wrap gap-4">
+                
+                <div class="form-check d-flex align-items-center m-0 p-0">
+                  <input class="form-check-input m-0" type="checkbox" name="active_edit" id="activeSwitch"
+                        {% if userInfo.is_active %}checked{% endif %}>
+                  <label class="form-check-label ms-1" for="activeSwitch">Active User</label>
+                </div>
+
+                <div class="form-check d-flex align-items-center m-0 p-0">
+                  <input class="form-check-input m-0" type="checkbox" name="staff_edit" id="staffSwitch"
+                        {% if userInfo.is_staff %}checked{% endif %}>
+                  <label class="form-check-label ms-1" for="staffSwitch">Staff Member</label>
+                </div>
+
+              </div>
+            </div>
+
+
+            <!-- Group Section -->
+            <div class="mb-4">
+              <label class="form-label">User Groups</label>
+              <div class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                {% for group in all_group %}
+                  <div class="form-check d-flex align-items-center m-0 p-0">
+                    <input class="form-check-input m-0" type="checkbox" name="groups_name" 
+                           id="group-{{ group.id }}" value="{{ group.id }}"
+                           {% if group.id in groups %}checked{% endif %}>
+                    <label class="form-check-label ms-1" for="group-{{ group.id }}">
+                      {{ group.name }}
+                    </label>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <button type="submit" class="btn btn-outline-primary px-4">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
