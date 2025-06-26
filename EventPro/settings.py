@@ -12,14 +12,14 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os 
+import cloudinary
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-print(BASE_DIR)
-print(MEDIA_ROOT)
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -29,7 +29,7 @@ print(MEDIA_ROOT)
 SECRET_KEY = 'django-insecure-!zz!v6#rzw8jx-o2++5%u&8yiuu%y0(=as&ew_c$gmkg)x4s5o'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['https://eventpro-15u7.onrender.com','*']
 LOGIN_URL = 'login'
@@ -57,6 +57,9 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'cloudinary',
+    'cloudinary_storage',
+    
 ]
 
 MIDDLEWARE = [
@@ -192,6 +195,19 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
+# CLOUDINARY_STORAGE = {
+#     'CLOUD_NAME': 'dbnpymqkz',
+#     'API_KEY': '171799261949368',
+#     'API_SECRET': 'L6SQXMC1jxv4L6OYxPpHs0mWiwQ',
+# }
+cloudinary.config( 
+  cloud_name="dbnpymqkz",
+  api_key="171799261949368", 
+  api_secret="L6SQXMC1jxv4L6OYxPpHs0mWiwQ",
+  secure=True
+)
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 SOCIALACCOUNT_QUERY_EMAIL = True

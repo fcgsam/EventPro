@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractUser
+from cloudinary.models import CloudinaryField
 
 class CustomUserManager(BaseUserManager):
     """
@@ -34,7 +35,7 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     # Additional fields
     phone_number = models.CharField(max_length=15, blank=True, null=True)
-    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True,default=None)
+    profile_image = CloudinaryField('image', folder='profile_images', blank=True, null=True, default=None)
 
     # Override default fields
     email =   models.EmailField(unique=True)

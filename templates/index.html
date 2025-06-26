@@ -24,7 +24,7 @@
                 {% else %}
                     iziToast.show({
                         title: 'Hey!',
-                        image: 'media/{{ user.profile_image }}',
+                        image: '{{ user.profile_image.url }}',
                         message: '{{ message|safe }}',
                         theme: 'dark',
                         transitionIn: 'flipInX',

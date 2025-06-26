@@ -448,70 +448,43 @@ from PIL import Image
 def profile_edit(request):
     if request.method == "POST" and request.user.is_authenticated:
         try:
-            print('edit')
             first_name = request.POST.get('first_name_profile')
             last_name = request.POST.get('last_name_profile')
             user_name = request.POST.get('user_name_profile')
             email_user = request.POST.get('email_profile')
             phone_number = request.POST.get('phone_profile')
-            # first_name = request.POST.get()
             profile_pic = request.FILES.get('profile_pic')
             remove_pic = request.POST.get('check_pic')
-            print("check :",profile_pic)
+
+            user = CustomUser.objects.get(id=request.user.id)
 
             if profile_pic:
                 try:
-                    # Open the image using Pillow
                     image = Image.open(profile_pic)
-                    image.verify()  # This checks if the file is a valid image
-                    
-                    # If it reaches here, it's a valid image file
-                    profile_pic.seek(0)  # Reset the file pointer after verification
-                    
-                    # Define the path to save the profile picture
-                    path = default_storage.save('profile_pics/' + profile_pic.name, ContentFile(profile_pic.read()))
-                    
-                    # Update the user's profile
-                    CustomUser.objects.filter(id=request.user.id).update(
-                        first_name=first_name,
-                        last_name=last_name,
-                        username=user_name,
-                        email=email_user,
-                        phone_number=phone_number,
-                        profile_image=path
-                    )
-                    
-                    messages.success(request, "Profile has been edited successfully.")
-                    return redirect('home')
+                    image.verify()
+                    profile_pic.seek(0)
+
+                    user.profile_image = profile_pic
 
                 except (IOError, SyntaxError):
-                    # If the file is not a valid image
                     messages.error(request, "File should be an image.")
                     return redirect("home")
 
-
-                
-            
-            if not profile_pic:
-                CustomUser.objects.filter(id=request.user.id).update(first_name = first_name,last_name=last_name,username = user_name ,email = email_user, phone_number = phone_number)
-                messages.success(request,"Profile has been edited successfully.")
-                # return redirect('home')
-
             if remove_pic == 'on':
-                print("check")
-                # Checkbox is checked
-                CustomUser.objects.filter(id=request.user.id).update(first_name = first_name,last_name=last_name,username = user_name ,email = email_user, phone_number = phone_number ,profile_image = '')
-                messages.success(request,"Profile has been edited successfully.")
-                return redirect('home')
-            # else:
-            #     print('not check')
-            #     # Checkbox is not checked
-            #     CustomUser.objects.filter(id=request.user.id).update(first_name = first_name,last_name=last_name,username = user_name ,email = email_user, phone_number = phone_number)
-            #     messages.success(request,"Profile has been edited successfully.")
-            #     return redirect('home')
+                user.profile_image = ''
+
+            user.first_name = first_name
+            user.last_name = last_name
+            user.username = user_name
+            user.email = email_user
+            user.phone_number = phone_number
+            user.save()
+
+            messages.success(request, "Profile has been edited successfully.")
             return redirect('home')
+
         except:
-            messages.error(request,'Oops! Someting wrong')
+            messages.error(request, 'Oops! Something went wrong.')
             return redirect('home')
         
 def password_page(request):

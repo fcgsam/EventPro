@@ -33,10 +33,7 @@ def signin_view(request):
 
 from PIL import Image
 def signup_view(request):
-
     if request.method == "POST":
-        # Extract user registration data from the request.POST dictionary
-
         email = request.POST.get("email_r_name")
         username = request.POST.get("Username_r_name")
         first_name = request.POST.get("first_r_name")
@@ -44,14 +41,12 @@ def signup_view(request):
         phone_number = request.POST.get("phone_r_name")
         password = request.POST.get("password_r_name1")
         password2 = request.POST.get("password_r_name2")
-        profile_pic = request.FILES.get("profile_pic")  # Get uploaded profile picture
-        
+        profile_pic = request.FILES.get("profile_pic")
 
-        # Check if the email already exists
+        # Validation remains the same
         if CustomUser.objects.filter(email=email).exists():
             messages.error(request, f"The email {email} already exists")
-            return redirect("register_page") 
-        
+            return redirect("register_page")
         
         if not first_name:
             messages.error(request, f"First Name required")
@@ -61,58 +56,43 @@ def signup_view(request):
         if not re.match(pattern, email):
             messages.error(request, f"Invalid Email")
             return redirect("register_page")
-        if not email:
-            messages.error(request, f"Email required")
-            return redirect("register_page")  # Redirect to the registration page
-        if password!=password2:
-            messages.error(request, f"The password Dosent match")
-            return redirect("register_page")  # Redirect to the registration page
+            
+        if password != password2:
+            messages.error(request, f"The password doesn't match")
+            return redirect("register_page")
 
-        # Save profile picture if provided
-        profile_image_path = None
+        # Simplify image validation (Cloudinary will handle the upload)
         if profile_pic:
             try:
-                # Open the image using Pillow
                 image = Image.open(profile_pic)
-                image.verify()  # Verify that the file is a valid image file
-                
-                # If the image is valid, reset the file pointer and save the image
-                profile_pic.seek(0)  # Reset the file pointer to the beginning
-                
-                # Define the path to save the profile picture (e.g., 'profile_pics/filename')
-                profile_image_path = default_storage.save('profile_pics/' + profile_pic.name, ContentFile(profile_pic.read()))
-
-                # You can proceed with saving other information related to the user as needed
-                # messages.success(request, "Profile image uploaded successfully.")
-                # return redirect("home")
-
+                image.verify()
+                profile_pic.seek(0)
             except (IOError, SyntaxError):
-                # If the file is not a valid image
-                messages.error(request, "File should be an image.")
+                messages.error(request, "File should be a valid image.")
                 return redirect("register_page")
 
-        # Create a new CustomUser instance and save it to the database
+        # Create user - Cloudinary will automatically handle the image upload
         user = CustomUser.objects.create(
             email=email,
             username=username,
             first_name=first_name,
             last_name=last_name,
             phone_number=phone_number,
-            profile_image=profile_image_path,  # Save the profile picture path
-            password=make_password(password),  # Hash the password
+            profile_image=profile_pic,  # Cloudinary handles the upload
+            password=make_password(password),
             is_active=True,
-            is_staff=False,  # Set is_staff to False for regular users
+            is_staff=False,
         )
 
-        # Log the user in
+        # Authenticate and login
         user = authenticate(request, username=email, password=password)
         if user is not None:
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        messages.success(request,'Account Created Successfully')
+        
+        messages.success(request, 'Account Created Successfully')
         return redirect("home")
 
     return render(request, "register.html")
-
 
 
 @login_required(login_url='login_page')
@@ -164,22 +144,11 @@ def Account_view(request):
             return redirect("account_page")
         if profile_pic:
             try:
-                # Open the image using Pillow
                 image = Image.open(profile_pic)
-                image.verify()  # Verify that the file is a valid image
-
-                # If the image is valid, reset the file pointer and save the image
-                profile_pic.seek(0)  # Reset the file pointer to the beginning of the file
-                
-                # Define the path to save the profile picture (e.g., 'profile_pics/filename')
-                path = default_storage.save('profile_pics/' + profile_pic.name, ContentFile(profile_pic.read()))
-
-                # messages.success(request, "Profile picture uploaded successfully.")
-                # return redirect("home")
-
+                image.verify()
+                profile_pic.seek(0)
             except (IOError, SyntaxError):
-                # If the file is not a valid image
-                messages.error(request, "The file should be an image.")
+                messages.error(request, "The file should be a valid image.")
                 return redirect("account_page")
                         
         # Create a new CustomUser instance and save it to the database
@@ -189,7 +158,7 @@ def Account_view(request):
             first_name=first_name,
             last_name=last_name,
             phone_number=phone_number,
-            profile_image=path if profile_pic else None,  # Save the profile picture path
+            profile_image=profile_pic if profile_pic else None,  # Save the profile picture path
             is_active=True,
             is_staff=True,
             password=make_password(password)  # Hash the password
