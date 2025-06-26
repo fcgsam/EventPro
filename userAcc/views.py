@@ -9,7 +9,7 @@ from django.contrib.auth.hashers import make_password
 # import requests
 from userAcc.models import CustomUser
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 # import imghdr
 import re
 
@@ -45,7 +45,7 @@ def signup_view(request):
         password = request.POST.get("password_r_name1")
         password2 = request.POST.get("password_r_name2")
         profile_pic = request.FILES.get("profile_pic")  # Get uploaded profile picture
-        print('6767 == ',profile_pic)
+        
 
         # Check if the email already exists
         if CustomUser.objects.filter(email=email).exists():
@@ -99,7 +99,9 @@ def signup_view(request):
             last_name=last_name,
             phone_number=phone_number,
             profile_image=profile_image_path,  # Save the profile picture path
-            password=make_password(password)  # Hash the password
+            password=make_password(password),  # Hash the password
+            is_active=True,
+            is_staff=False,  # Set is_staff to False for regular users
         )
 
         # Log the user in
@@ -193,7 +195,13 @@ def Account_view(request):
             password=make_password(password)  # Hash the password
         )
         user_id = get_object_or_404(CustomUser, email = email)
-        
+        group, created = Group.objects.get_or_create(name='staff')
+        perme1 =  Permission.objects.get(codename='can_add_task')
+        perme2 =  Permission.objects.get(codename='can_edit_task')
+        perme3 =  Permission.objects.get(codename='can_delete_task')
+        group.permissions.add(perme1, perme2, perme3)
+        group.user_set.add(user_id)  # Add the new user to the staff group
+
         for i in group_lst:
             groupName = Group.objects.get(id = i)
             groupName.user_set.add(user_id)

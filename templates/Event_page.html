@@ -61,7 +61,7 @@
             {% for event in events %}
             
             {% if event.id in past_event %}
-            <tr style="background-color: gray;" class="event_id" data-id="{{ event.id }}" data-title="{{ event.title }}" data-email="{{ event.manager_email }}" data-name="{{ event.managed_by }}" data-budget="{{ event.Budget }}">
+            <tr style="background-color: gray;" class="event_id" data-id="{{ event.id }}" data-title="{{ event.title }}" data-email="{{ event.manager_email }}" data-name="{{ event.managed_by }}" data-budget="{{ event.Budget }}" data-managerpic="{{ info_pic.profile_image.url }}">
             {% else %}
             <tr class="event_id" data-id="{{ event.id }}" data-title="{{ event.title }}" data-email="{{ event.manager_email }}" data-name="{{ event.managed_by }}" data-budget="{{ event.Budget }}">
             {% endif %}
@@ -75,16 +75,28 @@
                 </button>
 
                 {% if not event.id in past_event %}
-                <button type="button" class="btn btn-outline-primary border-0 btn-xs dt-edit" style="margin-right: 16px; padding: 0; width: 26px; height: 26px; display: inline-flex; justify-content: center; align-items: center;" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+                <button type="button" class="btn btn-outline-primary border-0 btn-xs dt-edit" style="margin-right: 16px; padding: 0; width: 26px; height: 26px; display: inline-flex; justify-content: center; align-items: center;" data-bs-toggle="modal" data-bs-target="#exampleModal2"
+                  data-eventid="{{ event.id }}"
+                  data-title="{{ event.title }}"
+                  data-description="{{ event.description }}"
+                  data-venue="{{ event.venue }}"
+                  data-date="{{ event.date|date:'Y-m-d' }}"
+                  data-time="{{ event.time|time:'H:i' }}"
+                  data-budget="{{ event.Budget }}"
+                  data-status="{{ event.status }}"
+                  data-attendee="{{ event.Attendee }}"
+                  data-manager="{{ event.managed_by }}"
+                  data-manageremail="{{ event.manager_email }}"   
+                >
                   <i class="mdi mdi-pencil menu-icon icon-xl"></i>
                 </button>
                 {%else%}
                 <button type="button"  style="margin-right: 13px; padding-right: 25px; background-color: white; border: none; cursor: default;" ></button>
                 {% endif %}
             </td>
-              <td  title="TRY TITLE">{{ event.title }}</td>
-              <td>{{ event.description }}</td>
-              <td>{{ event.venue }}</td>
+              <td title="{{ event.title }}">{{ event.title }}</td>
+              <td title="{{event.description}}">{{ event.description }}</td>
+              <td title="{{ event.venue }}">{{ event.venue }}</td>
               <td>{{ event.date }}</td>
               <td>{{ event.time }}</td>
               {% for key, value in summs.items %}
@@ -345,6 +357,7 @@
               <div class="list-wrapper" >
                 <form method="POST" action="{% url 'update_event' %}" id="Edit_model_event">
                   {% csrf_token %}
+                  
                 <div class="form-floating mb-3">
                   <input type="text" class="form-control floating-input-title" id="floatingInputTitle" placeholder="Titel" name="edit_title">
                   <label for="floatingInputTitle">Title</label>
@@ -421,10 +434,10 @@
                   <label for="Status_edit">Status</label>
                 </div><br>
 
-                <div class="form-floating mb-3">
+                <!-- <div class="form-floating mb-3">
                   <input type="number" class="form-control" id="floatingInputAttendee" placeholder="Titel" min="0" name="edit_attendee">
                   <label for="floatingInputAttendee">Attendee</label>
-                </div>
+                </div> -->
                 <input type="hidden" value="" name="edit_id_value" id="edit_id_input">
                 <button type="submit" class="btn btn-outline-primary" >Save</button>
                 </form>
@@ -640,6 +653,56 @@
 
       });
   });
+
+
+
+  
+$(document).ready(function() {
+    $('#exampleModal2').on('show.bs.modal', function(event) {
+        var button = $(event.relatedTarget);
+        var row = button.closest('tr');
+        
+        // Set form values
+        $('#id_of_event').val(button.data('eventid'));
+        $('#floatingInputTitle').val(button.data('title'));
+        $('#Description_id').val(button.data('description'));
+        $('#floatingTextareavenue').val(button.data('venue'));
+        $('#edit_date').val(button.data('date'));
+        // $('#edit_time').val(button.data('time'));
+        $('#floatingInputBudget').val(button.data('budget'));
+        $('#Status_edit').val(button.data('status'));
+        // $('#floatingInputAttendee').val(button.data('attendee'));
+        var timeValue = button.data('time');
+        if (timeValue) {
+            // Ensure time is in HH:MM format
+            var timeParts = timeValue.split(':');
+            if (timeParts.length >= 2) {
+                $('#edit_time').val(timeParts[0] + ':' + timeParts[1]);
+            } else {
+                $('#edit_time').val(timeValue);
+            }
+        }
+        // Set manager info
+        $('#edit_event_name_id').val(button.data('manager'));
+        $('#edit_assgin_to_email').val(button.data('manageremail'));
+        
+        // Set manager image
+        var managerPic = row.data('managerpic');
+        var imgspan = $('#imgspan_editEvent');
+        imgspan.empty();
+        
+        if(managerPic) {
+            imgspan.append(
+                $('<img>').addClass('rounded-circle me-1')
+                          .attr({src: managerPic, width: 24, height: 24}),
+                ' ' + button.data('manager') + ' | ' + button.data('manageremail')
+            );
+        } else {
+            imgspan.text(button.data('manager') + ' | ' + button.data('manageremail'));
+        }
+    });
+});
+
 </script>
 
  {% endblock %}

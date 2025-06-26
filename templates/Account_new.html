@@ -101,7 +101,7 @@
         </thead>
         <tbody>
           {% for info in info_user %}
-            {% if info.user.is_staff and not info.user.is_superuser and info.user.email != user.email %}
+            <!-- {% if info.user.is_staff and not info.user.is_superuser and info.user.email != user.email %} -->
               <tr>
                 <td>
                   {% if info.user.profile_image %}
@@ -110,20 +110,22 @@
                     </a>
                   {% endif %}
                 </td>
+
                 <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.first_name }}</a></td>
                 <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.last_name }}</a></td>
                 <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.username }}</a></td>
                 <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.email }}</a></td>
                 <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.phone_number }}</a></td>
                 <td>{{ info.user.is_active|yesno:"Yes,No" }}</td>
-                <td>{{ info.user.is_staff|yesno:"Yes,No" }}</td>
+                <td>{% if "staff" in info.group_names %}Yes{% else %}No{% endif %}</td>
+
                 <td>
                   {% for group in info.groups %}
                     {{ group.name }}{% if not forloop.last %}, {% endif %}
                   {% endfor %}
                 </td>
               </tr>
-            {% endif %}
+            <!-- {% endif %} -->
           {% endfor %}
         </tbody>
       </table>

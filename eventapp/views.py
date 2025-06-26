@@ -26,6 +26,10 @@ from django.contrib.auth.models import User,Group,Permission
 def custom_404_view(request, exception):
     return render(request, "404.html", status=404)
 
+def is_in_staff_group(user):
+    return user.groups.filter(name="staff").exists()
+
+
 def desboard_page(request):
     
     amount=0
@@ -67,7 +71,7 @@ def desboard_page(request):
                 
             }
         return render(request,'index.html',context)
-    elif request.user.is_staff:
+    elif is_in_staff_group(request.user):
         event = Event.objects.filter(date__gte=current_date,manager_email = request.user.email ).order_by('date')
         task =Task.objects.all()
         user_info = CustomUser.objects.all()
@@ -97,6 +101,8 @@ def desboard_page(request):
                 'numbersotask':numberOfTask
             }
         return render(request,'index.html',context)
+    elif not is_in_staff_group(request.user) and request.user.is_staff:
+        return render(request,'access_denied.html')
     else:
         present_date = datetime.now().date()
         events = Event.objects.all()
@@ -138,7 +144,7 @@ def Event_page(request):
     # grr = Group.objects.get(name='Even')
     user_perm = CustomUser.objects.get(id= request.user.id)
     print('user_perm 1344',user_perm.groups.all())
-    if request.user.is_superuser or   request.user.has_perm('eventapp.can_add_event'):
+    if request.user.is_superuser or (request.user.has_perm('eventapp.can_add_event') and is_in_staff_group(request.user)):
         amount=0
         summ={}
         event = Event.objects.all()
@@ -187,6 +193,8 @@ def Event_page(request):
             'past_event':lstofrow
         }
         return render(request, 'Event_page.html', context)
+    else:
+        return render(request,'access_denied.html')
     return render(request, 'Event_page.html')
 
 @csrf_exempt
@@ -229,6 +237,9 @@ def delete_user_event(request):
 
 @login_required(login_url='login_page')
 def Task_page(request):
+
+    if not is_in_staff_group(request.user) and request.user.is_staff and not request.user.is_superuser:
+        return render(request,'access_denied.html')
     amount=0
     summ={}
     events = Event.objects.all()
@@ -298,25 +309,37 @@ def hasedValue():
 @login_required(login_url='login_page')
 def Acount_new_page(request):
     
-    if request.user.is_superuser or request.user.has_perm('userAcc.can_add_staff'):
+    if request.user.is_superuser or (request.user.has_perm('userAcc.can_add_staff') and is_in_staff_group(request.user)):
         # newinfo = CustomUser.objects.all()
         # print(newinfo)
-        users = CustomUser.objects.all()
+        staff_users = CustomUser.objects.filter(
+            is_staff=True,
+            is_superuser=False,
+        ).exclude(email=request.user.email)
+        print('staff_users',staff_users)
         user_data = []
-        groups = Group.objects.all()
-        for user in users:
+        groups = Group.objects.exclude(name="staff")  
+        
+        for user in staff_users:
             user_groups = user.groups.all()
-            user_data.append({'user': user, 'groups': user_groups})
+            group_names = [g.name for g in user_groups]
+            filtered_groups = user_groups.exclude(name="staff")
+            user_data.append({'user': user, 'groups': filtered_groups,'group_names': group_names})
         context = {
             'info_user':user_data,
             'groups':groups
         }
+        print('context',context)
+        print("filtered_groups",filtered_groups)    
         return render(request,'Account_new.html',context)
+    else:
+        return render(request,'access_denied.html')
+    # return redirect('account_page')
     
 
 def Account_edit(request,encoded_userId):
     print(cipher_suite)
-    if request.user.is_superuser or request.user.has_perm('userAcc.can_add_staff'):
+    if request.user.is_superuser or (request.user.has_perm('userAcc.can_add_staff') and is_in_staff_group(request.user)):
         global userInfo
         print('encoded_userId' , encoded_userId)
         # userInfo = CustomUser.objects.filter(id=encoded_userId)
@@ -338,25 +361,26 @@ def Account_edit(request,encoded_userId):
             for i in user_groups:
                 user_data.append(i.id)
             # user_data.append({'user': userInfo, 'groups': user_groups})
-            all_groups = Group.objects.all()
-            print("allll",all_groups)
-            print('31444',userInfo.id)
+            all_groups = Group.objects.exclude(name="staff")
+            is_in_staff_group = userInfo.groups.filter(name="staff").exists()
             context = {
                 'userInfo': userInfo,
                 'groups': user_data,
-                'all_group':all_groups
-                
+                'all_group':all_groups,
+                'is_in_staff_group': is_in_staff_group
             }
             return render(request, 'Account_edit.html', context)
         except Exception as e:
             # Handle decryption errors
             print("Decryption Error:", e)
             return redirect('home')
+    elif not is_in_staff_group(request.user) and request.user.is_staff:
+        return render(request,'access_denied.html')
     else:
         return redirect('home')
     
 def Edit_account_admin(request,encoded_userId):
-    if request.method == 'POST'and (request.user.is_superuser or request.user.has_perm('userAcc.can_edit_staff')):
+    if request.method == 'POST'and (request.user.is_superuser or (request.user.has_perm('userAcc.can_edit_staff') and is_in_staff_group(request.user))):
         user = CustomUser.objects.all()
         # print('user3300',encoded_userId)
         # userId = cipher_suite.decrypt(encoded_userId.encode()).decode()
@@ -389,14 +413,19 @@ def Edit_account_admin(request,encoded_userId):
             active = (active_c == 'on')
             staff = (staff_c == 'on')
             userInfo.groups.clear()
-            
+            staff_group, created = Group.objects.get_or_create(name='staff')
+            if staff:
+                staff_group.user_set.add(userInfo)               
+            else:
+                staff_group.user_set.remove(userInfo)
+                
             
             for i in groups_ids:
                 group = Group.objects.get(id=i)
                 group.user_set.add(userInfo)
             # Update user object
             print('active',active)
-            userInfo.is_staff = staff
+            # userInfo.is_staff = staff
             userInfo.is_active = active
             userInfo.email = email
             userInfo.phone_number = phone_number
@@ -408,6 +437,8 @@ def Edit_account_admin(request,encoded_userId):
         except:
             messages.error(request,'Oop! can\'n update that account ')
             return redirect('account_page')
+    else:
+        return render(request,'access_denied.html')
     return render(request,'Account_new.html',{'info_user':user})
 
 def profile_edit_page(request):
@@ -563,16 +594,19 @@ def create_event(request):
         except:
             messages.error(request,'Oops! cant add that event Plz Try again ')
             return redirect('Event-page')
+    elif not is_in_staff_group(request.user) and request.user.is_staff:
+        return render(request,'access_denied.html')
     return render(request, 'Event_page.html')
 
 
 def get_event_data(request):
         if request.method == 'POST':
             try:
-                event_id = request.POST.get('edit_id_value')
+                print("get_event_data")
+                event_id = request.POST.get('id_of_event_name')
+                print("event_id ",event_id)
                 event = Event.objects.get(id=event_id)
-                print("event ",request.POST.get('edit_budget'))
-                print("event2 ",request.POST.get('edit_budget1'))
+                print("event ",event)
                 event.title = request.POST.get('edit_title')
                 event.description = request.POST.get('edit_discription')
                 event.venue = request.POST.get('edit_venue')
@@ -582,7 +616,7 @@ def get_event_data(request):
                 event.status = request.POST.get('Status_edit')
                 event.manager_email = request.POST.get('edit_assign_to_email_name')
                 event.managed_by = request.POST.get('edit_assgin_to')
-                event.Attendee = request.POST.get('edit_attendee')
+                # event.Attendee = request.POST.get('edit_attendee')
                 print("797979797 :: ",request.POST.get('edit_assign_to_email_name'),request.POST.get('edit_assgin_to'))
                 event.save()
                 # print(data)
@@ -765,7 +799,18 @@ def update_event(request):
 
 
 def new_group(request):
-    groups = Group.objects.all()
+    if request.user.is_staff and not is_in_staff_group(request.user):
+        return render(request, 'access_denied.html')
+
+    # Block unauthenticated users entirely
+    if not request.user.is_authenticated:
+        return render(request, 'access_denied.html')
+
+    # Block authenticated users without permission (except superuser)
+    if not request.user.is_superuser and not request.user.has_perm('userAcc.can_make_group'):
+        return render(request, 'access_denied.html')
+
+    groups = Group.objects.exclude(name="staff") # Exclude the 'staff' group
     membars = CustomUser.objects.all()
     
     context = {

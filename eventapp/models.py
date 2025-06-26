@@ -35,6 +35,13 @@ class Task(models.Model):
     # status = models.BooleanField(default=False)
     maneged_by = models.CharField(max_length=100)
     Budget = models.IntegerField()
+    class Meta:
+        permissions = (("can_edit_task", "To edit Task"),
+                      
+                        ("can_add_task", "To add Task"),
+                        ("can_delete_task", "To delete Task"),
+                        ("can_view_task", "To view Task")
+                        )
 
 # class Budget(models.Model):
 #     event = models.ForeignKey(Event, on_delete=models.CASCADE)

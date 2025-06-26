@@ -22,13 +22,15 @@
           <p class="text-muted mb-3">{{ userInfo.email }}</p>
           
           <div class="d-flex gap-2 mb-4">
-            <span class="badge {% if userInfo.is_active %}bg-success{% else %}bg-danger{% endif %}">
-              {{ userInfo.is_active|yesno:"Active,Inactive" }}
-            </span>
-            <span class="badge bg-warning text-dark">
-              {{ userInfo.is_staff|yesno:"Staff,Regular User" }}
-            </span>
+              <span class="badge {% if userInfo.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                  {{ userInfo.is_active|yesno:"Active,Inactive" }}
+              </span>
+
+              <span class="badge {% if is_in_staff_group %}bg-success{% else %}bg-danger{% endif %}">
+                  {% if is_in_staff_group %}Staff{% else %}Removed from Staff{% endif %}
+              </span>
           </div>
+
           
           <div class="w-100">
             <div class="d-flex justify-content-between py-2 border-bottom">
@@ -95,7 +97,7 @@
 
                 <div class="form-check d-flex align-items-center m-0 p-0">
                   <input class="form-check-input m-0" type="checkbox" name="staff_edit" id="staffSwitch"
-                        {% if userInfo.is_staff %}checked{% endif %}>
+                        {% if is_in_staff_group %}checked{% endif %}>
                   <label class="form-check-label ms-1" for="staffSwitch">Staff Member</label>
                 </div>
 
