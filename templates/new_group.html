@@ -71,7 +71,7 @@
                                                 {% if user_info.is_staff and not user_info.is_superuser and user.id != user_info.id%}
                                                 <tr title="{{ user_info.first_name }} | {{ user_info.email }}" style="cursor: pointer;">
                                                     <td width="30"><input type="checkbox" name="members_lst" value="{{ user_info.id }}"></td>
-                                                    <td width="40"><img class="img-xs rounded-circle" src="media/{{ user_info.profile_image }}" alt="Profile image"></td>
+                                                    <td width="40"><img class="img-xs rounded-circle" src="{{ user_info.profile_image.url }}" alt="Profile image"></td>
                                                     <td><b>{{ user_info.first_name}}</b></td>
                                                     <td><small class="text-muted">{{ user_info.email }}</small></td>
                                                 </tr>
@@ -165,7 +165,7 @@
                                             {% if user_info.is_staff and not user_info.is_superuser %}
                                             <tr title="{{ user_info.first_name }} | {{ user_info.email }}" style="cursor: pointer;">
                                                 <td width="30"><input type="checkbox" name="edit_members_lst" value="{{ user_info.id }}"></td>
-                                                <td width="40"><img class="img-xs rounded-circle" src="media/{{ user_info.profile_image }}" alt="Profile image"></td>
+                                                <td width="40"><img class="img-xs rounded-circle" src="{{ user_info.profile_image.url }}" alt="Profile image"></td>
                                                 <td><b>{{ user_info.first_name}}</b></td>
                                                 <td><small class="text-muted">{{ user_info.email }}</small></td>
                                             </tr>

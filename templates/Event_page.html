@@ -118,8 +118,8 @@
 
               {% for info_pic in info %}
                 {% if info_pic.email == event.manager_email %}
-                  <td data-email="{{ info_pic.email }}" data-first_name="{{ info_pic.first_name }}" data-pic = "media/{{ info_pic.profile_image }} "><span class="badge d-flex align-items-center p-1 pe-2 text-dark-emphasis bg-dark-subtle border border-dark-subtle rounded-pill">
-                          <img class="rounded-circle me-1" src="media/{{ info_pic.profile_image }}" alt="">{{ info_pic.first_name }} | {{ info_pic.email }}
+                  <td data-email="{{ info_pic.email }}" data-first_name="{{ info_pic.first_name }}" data-pic = "{{ info_pic.profile_image.url }} "><span class="badge d-flex align-items-center p-1 pe-2 text-dark-emphasis bg-dark-subtle border border-dark-subtle rounded-pill">
+                          <img class="rounded-circle me-1" src="{{ info_pic.profile_image.url }}" alt="">{{ info_pic.first_name }} | {{ info_pic.email }}
                       </span>
                   </td>
                 {% endif %}
@@ -127,8 +127,8 @@
               <td>{{ event.Attendee }}</td>
               {% for info_pic in info %}
                 {% if info_pic.email == event.created_by %}
-                  <td data-email="{{ info_pic.email }}" data-first_name="{{ info_pic.first_name }}" data-pic = "media/{{ info_pic.profile_image }} "><span class="badge d-flex align-items-center p-1 pe-2 text-dark-emphasis bg-dark-subtle border border-dark-subtle rounded-pill">
-                          <img class="rounded-circle me-1" src="media/{{ info_pic.profile_image }}" alt="">{{ info_pic.first_name }} | {{ info_pic.email }}
+                  <td data-email="{{ info_pic.email }}" data-first_name="{{ info_pic.first_name }}" data-pic = "{{ info_pic.profile_image.url }} "><span class="badge d-flex align-items-center p-1 pe-2 text-dark-emphasis bg-dark-subtle border border-dark-subtle rounded-pill">
+                          <img class="rounded-circle me-1" src="{{ info_pic.profile_image.url }}" alt="">{{ info_pic.first_name }} | {{ info_pic.email }}
                       </span>
                   </td>
                 {% endif %}
@@ -321,7 +321,7 @@
                         {% if user_info.is_staff and not user_info.is_superuser %}
                         <!-- {% if user_info.profile_image %} -->
                         <tr title="{{ user_info.first_name }} | {{ user_info.email }}" style="cursor :pointer;" data-pic="{{ user_info.profile_image }}">
-                          <td><img class="img-xs rounded-circle" src="media/{{ user_info.profile_image }}" alt="Profile image"> </a></td>
+                          <td><img class="img-xs rounded-circle" src="{{ user_info.profile_image.url }}" alt="Profile image"> </a></td>
                             <td><b>{{ user_info.first_name}}</b></td>
                             <td><b>{{ user_info.email }}</b></td>
                         </tr>
@@ -414,8 +414,8 @@
                         {% for user_info in info %}
                         {% if user_info.is_staff and not user_info.is_superuser %}
                         <!-- {% if user_info.profile_image %} -->
-                        <tr title="{{ user_info.first_name }} | {{ user_info.email }}" style="cursor :pointer;" data-pic="{{ user_info.profile_image }}">
-                          <td><img class="img-xs rounded-circle" src="media/{{ user_info.profile_image }}" alt="Profile image"> </a></td>
+                        <tr title="{{ user_info.first_name }} | {{ user_info.email }}" style="cursor :pointer;" data-pic="{{ user_info.profile_image.url }}">
+                          <td><img class="img-xs rounded-circle" src="{{ user_info.profile_image.url }}" alt="Profile image"> </a></td>
                             <td><b>{{ user_info.first_name}}</b></td>
                             <td><b>{{ user_info.email }}</b></td>
                         </tr>
@@ -597,8 +597,8 @@
       row.addEventListener("click", () => {
           const name_edit = row.cells[1].textContent;
           const email_edit = row.cells[2].textContent;
-          const profile_image_edit = "media/"+row.getAttribute('data-pic')
-          console.log('Clicked! Email:', 'media/'+profile_image_edit);
+          const profile_image_edit = row.getAttribute('data-pic')
+          console.log('Clicked! Email:', profile_image_edit);
           var val = document.getElementById('floatingInputassign').value = name_edit
           // var val = document.getElementById('floatingInputassign_ui').value = name_edit
           const img = $('<img>', {
@@ -628,8 +628,8 @@
       row.addEventListener("click", () => {
           const name = row.cells[1].textContent;
           const email = row.cells[2].textContent;
-          const profile_image = "media/"+row.getAttribute('data-pic')
-          console.log('Clicked! Email:', 'media/'+profile_image);
+          const profile_image =row.getAttribute('data-pic')
+          console.log('Clicked! Email:', profile_image);
           var val = document.getElementById('floatingInputassign').value = name
           // var val = document.getElementById('floatingInputassign_ui').value = name
           const img = $('<img>', {

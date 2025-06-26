@@ -772,25 +772,32 @@ def update_event(request):
 
 
 def new_group(request):
-    if request.user.is_staff and not is_in_staff_group(request.user):
-        return render(request, 'access_denied.html')
-
-    # Block unauthenticated users entirely
+    
+    # Block entirely if not authenticated
     if not request.user.is_authenticated:
         return render(request, 'access_denied.html')
 
-    # Block authenticated users without permission (except superuser)
-    if not request.user.is_superuser and not request.user.has_perm('userAcc.can_make_group'):
+    # Allow superuser no matter what
+    if request.user.is_superuser:
+        pass  # Allow access
+
+    # Block if user is marked as staff but not actually in staff group
+    elif request.user.is_staff and not is_in_staff_group(request.user):
         return render(request, 'access_denied.html')
 
-    groups = Group.objects.exclude(name="staff") # Exclude the 'staff' group
+    # Block if user does not have permission to make group
+    elif not request.user.has_perm('userAcc.can_make_group'):
+        return render(request, 'access_denied.html')
+
+    # Otherwise, allowed
+    groups = Group.objects.exclude(name="staff")  # Exclude 'staff' group
     membars = CustomUser.objects.all()
     
     context = {
-        'groups':groups,
-        'info':membars
+        'groups': groups,
+        'info': membars
     }
-    return render(request,'new_group.html',context)
+    return render(request, 'new_group.html', context)
 
 def make_group(request):
     if request.method=='POST':
