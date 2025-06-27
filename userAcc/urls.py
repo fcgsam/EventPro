@@ -5,7 +5,7 @@ from django.conf import settings
 
 urlpatterns=[
     # path('register',views.registration_form,name='register'),
-    path('logout',views.logout_view,name='logout'),
+    path('logout/',views.logout_view,name='logout'),
     path('signup',views.signup_view,name='signup'),
     path('login/',views.signin_view,name='login'),
     path('addAcount',views.Account_view,name='addAcount'),
