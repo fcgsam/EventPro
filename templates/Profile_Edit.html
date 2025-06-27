@@ -75,8 +75,8 @@
                             <label for="email_p">Email</label>
                         </div>
                         <div class="form-floating card mb-3">
-                            <input type="number" class="form-control" placeholder="Phone No." id="phone_p" name="phone_profile" style="border: none;" value="{{ user.phone_number }}">
-                            <label for="phone_p">Phone No.</label>
+                            <input type="tel" class="form-control" placeholder="Phone No." id="phone_p" name="phone_profile" style="border: none;" value="{{ user.phone_number }}" pattern="[6-9]{1}[0-9]{9}" maxlength="10" minlength="10" title="Enter a valid phone number" >
+                            <label for="phone_p">Phone Number.</label>
                         </div>
                         {% if not request.user.socialaccount_set.all %}
                             <div class="card mb-3">

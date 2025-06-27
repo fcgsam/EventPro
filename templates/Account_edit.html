@@ -66,7 +66,7 @@
               </div>
               <div class="col-md-6 mb-3">
                 <div class="form-floating mb-3">
-                  <input type="text" class="form-control" id="phone_number_id" placeholder="Phone Number" name="phone_number_edit" value="{{ userInfo.phone_number }}" required>
+                  <input type="tel" class="form-control" id="phone_number_id" placeholder="Phone Number" name="phone_number_edit" value="{{ userInfo.phone_number }}" pattern="[6-9]{1}[0-9]{9}" maxlength="10" minlength="10" title="Enter a valid phone number">
                   <label for="phone_number_id">Phone Number</label>
                 </div>
               </div>

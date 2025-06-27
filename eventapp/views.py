@@ -409,6 +409,13 @@ def Edit_account_admin(request,encoded_userId):
             phone_number = request.POST.get('phone_number_edit')
             groups_ids = request.POST.getlist('groups_name')
             # Convert form data to boolean
+            if CustomUser.objects.filter(email=email).exists():
+                messages.error(request, f"The email {email} already exists")
+                return redirect("account_page") 
+            phone_pattern = r'^[6-9]\d{9}$'
+            if not re.match(phone_pattern, phone_number):
+                messages.error(request, "Enter a valid phone number")
+                return redirect("account_page")  
             print('group_ides',groups_ids)
             active = (active_c == 'on')
             staff = (staff_c == 'on')
@@ -456,6 +463,29 @@ def profile_edit(request):
             profile_pic = request.FILES.get('profile_pic')
             remove_pic = request.POST.get('check_pic')
 
+            if CustomUser.objects.filter(email=email_user).exists():
+                messages.error(request, f"The email {email_user} already exists")
+                return redirect("profile_edit_page") 
+            if CustomUser.objects.filter(username=user_name).exists():
+                messages.error(request, f"The username {user_name} already exists")
+                return redirect("profile_edit_page") 
+            if not first_name:
+                messages.error(request, f"First Name required")
+                return redirect("profile_edit_page")
+            
+            pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+            if not re.match(pattern, email_user):
+                messages.error(request, f"Invalid Email")
+                return redirect("profile_edit_page")
+
+            if not email_user:
+                messages.error(request, f"Email required")
+                return redirect("profile_edit_page")  # Redirect to the registration page
+
+            phone_pattern = r'^[6-9]\d{9}$'
+            if not re.match(phone_pattern, phone_number):
+                messages.error(request, "Enter a valid phone number")
+                return redirect("profile_edit_page")  # or "account_page" in Account_view
             user = CustomUser.objects.get(id=request.user.id)
 
             if profile_pic:
@@ -481,11 +511,11 @@ def profile_edit(request):
             user.save()
 
             messages.success(request, "Profile has been edited successfully.")
-            return redirect('home')
+            return redirect('profile_edit_page')
 
         except:
             messages.error(request, 'Oops! Something went wrong.')
-            return redirect('home')
+            return redirect('profile_edit_page')
         
 def password_page(request):
     global current_password

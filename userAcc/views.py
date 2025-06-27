@@ -70,6 +70,10 @@ def signup_view(request):
             except (IOError, SyntaxError):
                 messages.error(request, "File should be a valid image.")
                 return redirect("register_page")
+        phone_pattern = r'^[6-9]\d{9}$'
+        if not re.match(phone_pattern, phone_number):
+            messages.error(request, "Enter a valid phone number")
+            return redirect("register_page")  # or "account_page" in Account_view
 
         # Create user - Cloudinary will automatically handle the image upload
         user = CustomUser.objects.create(
@@ -150,7 +154,10 @@ def Account_view(request):
             except (IOError, SyntaxError):
                 messages.error(request, "The file should be a valid image.")
                 return redirect("account_page")
-                        
+        phone_pattern = r'^[6-9]\d{9}$'
+        if not re.match(phone_pattern, phone_number):
+            messages.error(request, "Enter a valid phone number")
+            return redirect("register_page")  # or "account_page" in Account_view           
         # Create a new CustomUser instance and save it to the database
         user = CustomUser.objects.create(
             email=email,
