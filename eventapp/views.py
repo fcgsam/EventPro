@@ -463,12 +463,7 @@ def profile_edit(request):
             profile_pic = request.FILES.get('profile_pic')
             remove_pic = request.POST.get('check_pic')
 
-            if CustomUser.objects.filter(email=email_user).exists():
-                messages.error(request, f"The email {email_user} already exists")
-                return redirect("profile_edit_page") 
-            if CustomUser.objects.filter(username=user_name).exists():
-                messages.error(request, f"The username {user_name} already exists")
-                return redirect("profile_edit_page") 
+ 
             if not first_name:
                 messages.error(request, f"First Name required")
                 return redirect("profile_edit_page")
