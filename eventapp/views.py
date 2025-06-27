@@ -21,6 +21,7 @@ from django.contrib.auth import authenticate,login
 from django.template import RequestContext
 from .keys import cipher_suite
 from django.contrib.auth.models import User,Group,Permission
+from .keys import cipher_suite
 # Create your views here.
 
 def custom_404_view(request, exception):
@@ -306,17 +307,16 @@ def total_amount(request):
 def hasedValue():
     cipherHas = cipher_suite
     return cipherHas
+
 @login_required(login_url='login_page')
 def Acount_new_page(request):
-    
     if request.user.is_superuser or (request.user.has_perm('userAcc.can_add_staff') and is_in_staff_group(request.user)):
-        # newinfo = CustomUser.objects.all()
-        # print(newinfo)
+        
         staff_users = CustomUser.objects.filter(
             is_staff=True,
             is_superuser=False,
         ).exclude(email=request.user.email)
-        print('staff_users',staff_users)
+        
         user_data = []
         groups = Group.objects.exclude(name="staff")  
         
@@ -324,129 +324,112 @@ def Acount_new_page(request):
             user_groups = user.groups.all()
             group_names = [g.name for g in user_groups]
             filtered_groups = user_groups.exclude(name="staff")
-            user_data.append({'user': user, 'groups': filtered_groups,'group_names': group_names})
+            
+            # ✅ Make sure hashed_id is generated
+            hashed_id = cipher_suite.encrypt(str(user.id).encode()).decode()
+            print('User:', user.id, 'Hashed ID:', hashed_id)
+            user_data.append({
+                'user': user,
+                'groups': filtered_groups,
+                'group_names': group_names,
+                'hashed_id': hashed_id
+            })
+        
         context = {
-            'info_user':user_data,
-            'groups':groups
+            'info_user': user_data,
+            'groups': groups
         }
-        print('context',context)
-        print("filtered_groups",filtered_groups)    
-        return render(request,'Account_new.html',context)
-    else:
-        return render(request,'access_denied.html')
-    # return redirect('account_page')
+        
+        return render(request, 'Account_new.html', context)
     
-
-def Account_edit(request,encoded_userId):
-    print(cipher_suite)
+    else:
+        return render(request, 'access_denied.html')
+def Account_edit(request, encoded_userId):
     if request.user.is_superuser or (request.user.has_perm('userAcc.can_add_staff') and is_in_staff_group(request.user)):
-        global userInfo
-        print('encoded_userId' , encoded_userId)
-        # userInfo = CustomUser.objects.filter(id=encoded_userId)
-        # context ={
-        #     'userInfo':userInfo
-        # }
-        # return render(request,'Account_edit.html',context)
         try:
-            # Decrypt the user ID
-            haed = hasedValue()
-            userId = haed.decrypt(encoded_userId.encode()).decode()
-            print('333112',userId)
+            userId = cipher_suite.decrypt(encoded_userId.encode()).decode()
             userInfo = CustomUser.objects.get(id=userId)
-            print('323333',userInfo)
-            user_data = []
-            # for user in userInfo:
-            #     print('32666',user.id)
+
             user_groups = userInfo.groups.all()
-            for i in user_groups:
-                user_data.append(i.id)
-            # user_data.append({'user': userInfo, 'groups': user_groups})
+            group_ids = [group.id for group in user_groups]
             all_groups = Group.objects.exclude(name="staff")
             is_in_staff_group = userInfo.groups.filter(name="staff").exists()
+
             context = {
                 'userInfo': userInfo,
-                'groups': user_data,
-                'all_group':all_groups,
+                'groups': group_ids,
+                'all_group': all_groups,
                 'is_in_staff_group': is_in_staff_group
             }
             return render(request, 'Account_edit.html', context)
-        except Exception as e:
-            # Handle decryption errors
-            print("Decryption Error:", e)
-            return redirect('home')
-    elif not is_in_staff_group(request.user) and request.user.is_staff:
-        return render(request,'access_denied.html')
-    else:
-        return redirect('home')
-    
-def Edit_account_admin(request,encoded_userId):
-    if request.method == 'POST'and (request.user.is_superuser or (request.user.has_perm('userAcc.can_edit_staff') and is_in_staff_group(request.user))):
-        user = CustomUser.objects.all()
-        # print('user3300',encoded_userId)
-        # userId = cipher_suite.decrypt(encoded_userId.encode()).decode()
-        # print('useriddd33222: ',userId)
-        # userInfo = CustomUser.objects.get(id=userId)
-        try:
-            # active_c = request.POST.get('active_edit')
-            # staff_c = request.POST.get('staff_edit')
 
-            # if active_c == 'on':
-            #     active = True
-            # else:
-            #     active = False
-            
-            # if staff_c == 'on':
-            #     staff = True
-            # else:
-            #     staff = False
-            # userId = cipher_suite.decrypt(encoded_userId.encode()).decode()
-            # userInfo = CustomUser.objects.get(id=userId)
-            
-            # Get form data
+        except Exception as e:
+            print("Decryption Error:", e)
+            messages.error(request, "Invalid or expired link.")
+            return redirect('account_page')
+
+    elif not is_in_staff_group(request.user) and request.user.is_staff:
+        return render(request, 'access_denied.html')
+
+    return redirect('account_page')
+
+
+def Edit_account_admin(request, encoded_userId):
+    if request.method == 'POST' and (request.user.is_superuser or (request.user.has_perm('userAcc.can_edit_staff') and is_in_staff_group(request.user))):
+        try:
+            userId = cipher_suite.decrypt(encoded_userId.encode()).decode()
+            userInfo = CustomUser.objects.get(id=userId)
+
             active_c = request.POST.get('active_edit')
             staff_c = request.POST.get('staff_edit')
             email = request.POST.get('email_edit')
             phone_number = request.POST.get('phone_number_edit')
             groups_ids = request.POST.getlist('groups_name')
-            # Convert form data to boolean
-            if CustomUser.objects.filter(email=email).exists():
+
+            # Email check excluding current user
+            if CustomUser.objects.filter(email=email).exclude(id=userId).exists():
                 messages.error(request, f"The email {email} already exists")
-                return redirect("account_page") 
+                return redirect('account_edit', encoded_userId=encoded_userId)
+
+
+            # Phone number validation
             phone_pattern = r'^[6-9]\d{9}$'
             if not re.match(phone_pattern, phone_number):
-                messages.error(request, "Enter a valid phone number")
-                return redirect("account_page")  
-            print('group_ides',groups_ids)
+                messages.error(request, "Enter a valid 10-digit Indian phone number")
+                return redirect('account_edit', encoded_userId=encoded_userId)
+
+
             active = (active_c == 'on')
             staff = (staff_c == 'on')
+
             userInfo.groups.clear()
-            staff_group, created = Group.objects.get_or_create(name='staff')
+
+            staff_group, _ = Group.objects.get_or_create(name='staff')
             if staff:
-                staff_group.user_set.add(userInfo)               
+                staff_group.user_set.add(userInfo)
             else:
                 staff_group.user_set.remove(userInfo)
-                
-            
-            for i in groups_ids:
-                group = Group.objects.get(id=i)
+
+            for group_id in groups_ids:
+                group = Group.objects.get(id=group_id)
                 group.user_set.add(userInfo)
-            # Update user object
-            print('active',active)
-            # userInfo.is_staff = staff
+
             userInfo.is_active = active
             userInfo.email = email
             userInfo.phone_number = phone_number
             userInfo.save()
-            # CustomUser.objects.filter(id=userId).update(is_staff = staff,is_active=active)
-            messages.success(request,'Account updated Successfully')
-            # return render(request,'Account_new.html',{'info_user':user})
-            return redirect('account_page')
-        except:
-            messages.error(request,'Oop! can\'n update that account ')
-            return redirect('account_page')
-    else:
-        return render(request,'access_denied.html')
-    return render(request,'Account_new.html',{'info_user':user})
+
+            messages.success(request, 'Account updated successfully')
+            return redirect('account_edit', encoded_userId=encoded_userId)
+
+
+        except Exception as e:
+            print("Error:", e)
+            messages.error(request, "Oops! Couldn't update the account.")
+            return redirect('account_edit', encoded_userId=encoded_userId)
+
+
+    return render(request, 'access_denied.html')
 
 def profile_edit_page(request):
     return render(request,'Profile_Edit.html')
@@ -463,7 +446,12 @@ def profile_edit(request):
             profile_pic = request.FILES.get('profile_pic')
             remove_pic = request.POST.get('check_pic')
 
- 
+            if CustomUser.objects.filter(email=email_user).exclude(id=request.user.id).exists():
+                messages.error(request, f"The email {email_user} already exists")
+                return redirect("profile_edit_page") 
+            if CustomUser.objects.filter(username=user_name).exclude(id=request.user.id).exists():
+                messages.error(request, f"The username {user_name} already exists")
+                return redirect("profile_edit_page") 
             if not first_name:
                 messages.error(request, f"First Name required")
                 return redirect("profile_edit_page")
@@ -707,7 +695,7 @@ def new_task(request):
         task = Task.objects.create(title=title, Budget=budget, maneged_by=managed_by, Event_id=event_id)
         print('109 ===' ,statusE)
         if statusE == 'Pending':
-            print('4441 ===' ,statusE)
+            
             Event.objects.filter(id=event_id).update(status='Ongoing')
         # Optionally, you can return the created task data as JSON
         return JsonResponse({'status': 'success', 'task_id': task.id})

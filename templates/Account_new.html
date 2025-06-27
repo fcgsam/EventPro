@@ -8,9 +8,12 @@
   {% if messages %}
   {% for message in messages %}
     <script>
+      console.log('{{ message }}');
+
+      
       iziToast.show({
         title: '{{ message.tags|title }}!',
-        message: '{{ message|safe }}',
+        message: "{{ message|safe }}",
         {% if message.tags == "success" %}
           theme: 'dark',
         {% else %}
@@ -105,17 +108,17 @@
               <tr>
                 <td>
                   {% if info.user.profile_image %}
-                    <a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}">
+                    <a href="{% url 'account_edit' encoded_userId=info.hashed_id  %}">
                       <img src="{{ info.user.profile_image.url }}" class="img-sm rounded-circle">
                     </a>
                   {% endif %}
                 </td>
 
-                <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.first_name }}</a></td>
-                <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.last_name }}</a></td>
-                <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.username }}</a></td>
-                <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.email }}</a></td>
-                <td><a href="{% url 'account_edit' encoded_userId=info.user.id|encrypt_id %}" class="text-black no-underline font-normal">{{ info.user.phone_number }}</a></td>
+                <td><a href="{% url 'account_edit' encoded_userId=info.hashed_id  %}" class="text-black no-underline font-normal">{{ info.user.first_name }}</a></td>
+                <td><a href="{% url 'account_edit' encoded_userId=info.hashed_id  %}" class="text-black no-underline font-normal">{{ info.user.last_name }}</a></td>
+                <td><a href="{% url 'account_edit' encoded_userId=info.hashed_id  %}" class="text-black no-underline font-normal">{{ info.user.username }}</a></td>
+                <td><a href="{% url 'account_edit' encoded_userId=info.hashed_id  %}" class="text-black no-underline font-normal">{{ info.user.email }}</a></td>
+                <td><a href="{% url 'account_edit' encoded_userId=info.hashed_id  %}" class="text-black no-underline font-normal">{{ info.user.phone_number }}</a></td>
                 <td>{{ info.user.is_active|yesno:"Yes,No" }}</td>
                 <td>{% if "staff" in info.group_names %}Yes{% else %}No{% endif %}</td>
 

@@ -63,9 +63,9 @@
                             <label for="user_name_p">Username</label>
                         </div>
                         {% if not request.user.socialaccount_set.all %}
-                            <div class="form-check mb-3">
-                                <input type="checkbox" class="form-check-input" id="check_pic_id" name="check_pic">
-                                <label class="form-check-label" for="check_pic_id">Remove Profile</label>
+                            <div class="form-check align-items-center m-0 p-0">
+                                <input type="checkbox" class="form-check-input m-0" id="check_pic_id" name="check_pic">
+                                <label class="form-check-label m-1" for="check_pic_id">Remove Profile</label>
                             </div>
                         {% endif %}
                     </div>
@@ -79,17 +79,23 @@
                             <label for="phone_p">Phone Number.</label>
                         </div>
                         {% if not request.user.socialaccount_set.all %}
-                            <div class="card mb-3">
-                                <input type="file" class="form-control mt-2" id="profile_file" name="profile_pic" accept="image/*">
+                        <div class="card mb-3 shadow-sm">
+                            <div class="card-body">
+                                <label for="profile_file" class="form-label fw-semibold">Profile Picture</label>
+                                <input class="form-control" type="file" id="profile_file" name="profile_pic" accept="image/*">
+                                
                             </div>
-                            <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#password">
-                                Change Password
-                            </button>
+                        </div>
                         {% endif %}
+
                     </div>
                 </div>
                 <button type="submit" class="btn btn-outline-primary mt-4">Save</button>
+                <button type="button" class="btn btn-outline-primary mt-4" data-bs-toggle="modal" data-bs-target="#password">
+                    Change Password
+                </button>
             </form>
+            
         </div>
     </div>
 </div>
@@ -133,7 +139,7 @@
                 $('#profile_image_edit').attr('src', '');
             } else {
                 {% if user.profile_image %}
-                    var path = 'media/{{ user.profile_image }}';
+                    var path = '{{ user.profile_image.url }}';
                 {% else %}
                     var path = pathPic;
                 {% endif %}

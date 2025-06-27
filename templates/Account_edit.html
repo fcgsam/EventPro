@@ -4,6 +4,26 @@
 {% block content %}
 
 <div class="container-fluid p-4">
+
+    {% if messages %}
+  {% for message in messages %}
+    <script>
+      console.log('{{ message }}');
+
+      
+      iziToast.show({
+        title: '{{ message.tags|title }}!',
+        message: "{{ message|safe }}",
+        {% if message.tags == "success" %}
+          theme: 'dark',
+        {% else %}
+          color: 'red',
+        {% endif %}
+      });
+    </script>
+  {% endfor %}
+{% endif %}
+
   <div class="row g-4">
     <!-- Profile Card (Right Side) -->
     <div class="col-lg-4 order-lg-2">
@@ -51,39 +71,64 @@
       <div class="card">
         <div class="card-body">
           <h4 class="card-title mb-4">Edit User Information</h4>
-          
-          <form method="POST" action="{% url 'edit_staff' encoded_userId=info.id|encrypt_id %}">
+
+          <form method="POST" action="{% url 'edit_staff' encoded_userId=userInfo.id|encrypt_id %}">
             {% csrf_token %}
             
             <div class="row mb-4">
+
               <div class="col-md-6 mb-3">
-                <!-- <label class="form-label">First Name</label>
-                <div class="form-control-plaintext">{{ userInfo.first_name }}</div> -->
                 <div class="form-floating mb-3">
                   <input type="text" class="form-control" id="Email_id" placeholder="Email" name="email_edit" value="{{ userInfo.email }}" required>
                   <label for="Email_id">Email</label>
                 </div>
               </div>
+
               <div class="col-md-6 mb-3">
                 <div class="form-floating mb-3">
                   <input type="tel" class="form-control" id="phone_number_id" placeholder="Phone Number" name="phone_number_edit" value="{{ userInfo.phone_number }}" pattern="[6-9]{1}[0-9]{9}" maxlength="10" minlength="10" title="Enter a valid phone number">
                   <label for="phone_number_id">Phone Number</label>
                 </div>
               </div>
-              
+
+              <hr>
+
+              <!-- First Name Non-Editable -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">First Name</label>
-                <div class="form-control-plaintext">{{ userInfo.first_name }}</div>
+                <div class="border rounded bg-light p-3 position-relative">
+                  <h6 class="fw-semibold text-muted mb-1">
+                    First Name 
+                    <i class="mdi mdi-lock ms-2 text-muted" title="Non-editable"></i>
+                  </h6>
+                  <p class="mb-0 fs-6">{{ userInfo.first_name }}</p>
+                </div>
               </div>
+
+              <!-- Last Name Non-Editable -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">Last Name</label>
-                <div class="form-control-plaintext">{{ userInfo.last_name }}</div>
+                <div class="border rounded bg-light p-3 position-relative">
+                  <h6 class="fw-semibold text-muted mb-1">
+                    Last Name 
+                    <i class="mdi mdi-lock ms-2 text-muted" title="Non-editable"></i>
+                  </h6>
+                  <p class="mb-0 fs-6">{{ userInfo.last_name }}</p>
+                </div>
               </div>
+
+              <!-- Username Non-Editable -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">Username</label>
-                <div class="form-control-plaintext">{{ userInfo.username }}</div>
+                <div class="border rounded bg-light p-3 position-relative">
+                  <h6 class="fw-semibold text-muted mb-1">
+                    Username 
+                    <i class="mdi mdi-lock ms-2 text-muted" title="Non-editable"></i>
+                  </h6>
+                  <p class="mb-0 fs-6">{{ userInfo.username }}</p>
+                </div>
               </div>
+
             </div>
+
+
 
             <div class="mb-4">
               <label class="form-label mb-3 fw-semibold">Account Status</label>
